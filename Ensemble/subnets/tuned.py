@@ -1,9 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils.metric_history import History
-
-
 class Subnet1Features(nn.Module):
     def __init__(self):
         super(Subnet1Features, self).__init__()
@@ -19,8 +16,6 @@ class Subnet1Features(nn.Module):
 
         self.lin1 = nn.Linear(256 * 6 * 6, 4096)
         self.lin2 = nn.Linear(4096, 4096)
-
-        self.history = History()
 
         self.drop = nn.Dropout(p=0.2)
 
@@ -71,8 +66,6 @@ class Subnet2Features(nn.Module):
 
         self.lin1 = nn.Linear(256 * 6 * 6, 4096)
         self.lin2 = nn.Linear(4096, 4096)
-
-        self.history = History()
 
         self.drop = nn.Dropout(p=0.2)
 
@@ -127,8 +120,6 @@ class Subnet3Features(nn.Module):
 
         self.lin1 = nn.Linear(256 * 6 * 6, 4096)
         self.lin2 = nn.Linear(4096, 4096)
-
-        self.history = History()
 
         self.drop = nn.Dropout(p=0.2)
 

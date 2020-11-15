@@ -9,6 +9,7 @@ from torch import optim
 from subnets import basic, tuned
 from data.fer2013 import load_dataset
 from utils.checkpoint import save, restore
+from utils.logger import Logger
 
 warnings.filterwarnings("ignore")
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -115,8 +116,9 @@ def run(args):
 
     # Prepare network
     net = networks[hps['name']]()
+    logger = Logger()
     if hps['restore_epoch']:
-        restore(net, hps)
+        restore(net, logger, hps)
     net.to(device)
 
     criterion = nn.CrossEntropyLoss()
@@ -125,15 +127,15 @@ def run(args):
     print("Training on", device)
     for epoch in range(hps['start_epoch'], hps['n_epochs']):
         acc_tr, loss_tr = train(net, trainloader, criterion, optimizer)
-        net.history.loss_train.append(loss_tr)
-        net.history.acc_train.append(acc_tr)
+        logger.loss_train.append(loss_tr)
+        logger.acc_train.append(acc_tr)
 
         acc_v, loss_v = evaluate(net, valloader, criterion)
-        net.history.loss_val.append(loss_v)
-        net.history.acc_val.append(acc_v)
+        logger.loss_val.append(loss_v)
+        logger.acc_val.append(acc_v)
 
-        save(net, hps, epoch)
-        net.history.save(hps)
+        save(net, logger, hps, epoch)
+        logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
               'Train Accuracy: %2.2f %%' % acc_tr,

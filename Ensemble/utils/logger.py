@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 import os
 
-class History:
+class Logger:
     def __init__(self):
         self.loss_train = []
         self.loss_val = []
@@ -9,7 +9,13 @@ class History:
         self.acc_train = []
         self.acc_val = []
 
-    def save(self, hps):
+    def get_logs(self):
+        return self.loss_train, self.loss_val, self.acc_train, self.acc_val
+
+    def restore_logs(self, logs):
+        self.loss_train, self.loss_val, self.acc_train, self.acc_val = logs
+
+    def save_plt(self, hps):
         loss_path = os.path.join(hps['model_save_dir'], 'loss.jpg')
         acc_path = os.path.join(hps['model_save_dir'], 'acc.jpg')
 
