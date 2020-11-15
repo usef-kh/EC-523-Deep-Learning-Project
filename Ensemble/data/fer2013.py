@@ -44,13 +44,12 @@ class Fer2013(Dataset):
         if self.transform:
             img = self.transform(img)
 
-        # print(img)
         label = torch.tensor(self.labels[idx]).type(torch.long)
         sample = (img, label)
 
         return sample
 
-def loadFer2013():
+def load_dataset():
     xtrain, ytrain = prepare_data(fer2013[fer2013['Usage'] == 'Training'])
     xval, yval = prepare_data(fer2013[fer2013['Usage'] == 'PrivateTest'])
     xtest, ytest = prepare_data(fer2013[fer2013['Usage'] == 'PublicTest'])

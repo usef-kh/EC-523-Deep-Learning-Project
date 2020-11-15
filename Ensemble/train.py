@@ -51,9 +51,8 @@ def train(net, dataloader, criterion, optimizer):
     return acc, loss
 
 
-def test(net, dataloader, criterion):
+def evaluate(net, dataloader, criterion):
     net = net.eval()
-
     loss_tr, correct_count, n_samples = 0.0, 0.0, 0.0
     for data in dataloader:
         inputs, labels = data
@@ -108,17 +107,17 @@ def setup_hparams(args):
 
 
 def run(args):
+    # Important parameters
     hps = setup_hparams(args)
 
+    # Create dataloaders
     trainloader, valloader, testloader = load_dataset()
 
+    # Prepare network
     net = networks[hps['name']]()
-
     if hps['restore_epoch']:
         restore(net, hps)
-
     net.to(device)
-    print(net)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
@@ -129,11 +128,12 @@ def run(args):
         net.history.loss_train.append(loss_tr)
         net.history.acc_train.append(acc_tr)
 
-        acc_v, loss_v = test(net, valloader, criterion)
+        acc_v, loss_v = evaluate(net, valloader, criterion)
         net.history.loss_val.append(loss_v)
         net.history.acc_val.append(acc_v)
 
         save(net, hps, epoch)
+        net.history.save(hps)
 
         print('Epoch %2d' % (epoch + 1),
               'Train Accuracy: %2.2f %%' % acc_tr,
@@ -142,5 +142,4 @@ def run(args):
 
 
 if __name__ == "__main__":
-    # print(sys.argv)
     run(sys.argv[1:])

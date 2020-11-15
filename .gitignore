@@ -1,2 +1,4 @@
 /datasets/
 /.idea/
+/ensemble/checkpoints/
+/ensemble/.idea/

@@ -20,10 +20,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="598bdfb5-fb4d-40f3-8811-b53bbc4a2a68" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.ipynb_checkpoints/Untitled-checkpoint.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Copy_of_Tuned_Subnets.ipynb" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BasicSubnets.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/TunedSubnets.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/fer2013.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/fer2013.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/checkpoint.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/checkpoint.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/metric_history.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/metric_history.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +47,34 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RunManager">
+    <configuration name="train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Ensemble" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/train.py" />
+      <option name="PARAMETERS" value="name=sub1_basic" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.train" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -65,11 +97,32 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="461" y="165" key="SettingsEditor" timestamp="1605426808506">
+    <state x="414" y="175" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1605459552664">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="461" y="165" key="SettingsEditor/-1080.-326.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1605426808506" />
+    <state x="414" y="175" key="#com.intellij.execution.impl.EditConfigurationsDialog/-1080.-326.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1605459552664" />
+    <state width="1899" height="396" key="GridCell.Tab.0.bottom" timestamp="1605461627253">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1899" height="396" key="GridCell.Tab.0.bottom/-1080.-326.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1605461627253" />
+    <state width="1899" height="396" key="GridCell.Tab.0.center" timestamp="1605461627253">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1899" height="396" key="GridCell.Tab.0.center/-1080.-326.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1605461627253" />
+    <state width="1899" height="396" key="GridCell.Tab.0.left" timestamp="1605461627253">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1899" height="396" key="GridCell.Tab.0.left/-1080.-326.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1605461627253" />
+    <state width="1899" height="396" key="GridCell.Tab.0.right" timestamp="1605461627253">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1899" height="396" key="GridCell.Tab.0.right/-1080.-326.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1605461627253" />
+    <state x="461" y="165" key="SettingsEditor" timestamp="1605459072580">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="461" y="165" key="SettingsEditor/-1080.-326.1080.1880/0.0.1920.1040@0.0.1920.1040" timestamp="1605459072580" />
   </component>
 </project>
