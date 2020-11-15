@@ -1,26 +1,18 @@
-import os
 import sys
 import warnings
 
 import torch
 import torch.nn as nn
 from torch import optim
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from subnets import basic, tuned
 from data.fer2013 import load_dataset
 from utils.checkpoint import save, restore
+from utils.hparams import setup_hparams
 from utils.logger import Logger
 
 warnings.filterwarnings("ignore")
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-networks = {
-    'sub1_basic': basic.Subnet1,
-    'sub2_basic': basic.Subnet2,
-    'sub3_basic': basic.Subnet3,
-    'sub1_tuned': tuned.Subnet1,
-    'sub2_tuned': tuned.Subnet2,
-    'sub3_tuned': tuned.Subnet3
-}
 
 
 def train(net, dataloader, criterion, optimizer):
@@ -75,47 +67,13 @@ def evaluate(net, dataloader, criterion):
     return acc, loss
 
 
-def setup_hparams(args):
-    hps = {
-        'name': None,
-        'n_epochs': 20,
-        'model_save_dir': None,
-        'restore_epoch': None,
-        'start_epoch': 0
-    }
-
-    for arg in args:
-        key, value = arg.split('=')
-        if key not in hps:
-            raise RuntimeError(key + ' is not a known hyper parameter')
-        else:
-            hps[key] = value
-
-    if hps['name'] not in networks:
-        raise RuntimeError("Name possibilities are: " + ' '.join(networks.keys()))
-
-    hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints', hps['name'])
-
-    if not os.path.exists(hps['model_save_dir']):
-        os.makedirs(hps['model_save_dir'])
-
-    if hps['restore_epoch']:
-        hps['start_epoch'] = int(hps['restore_epoch'])
-
-    hps['n_epochs'] = int(hps['n_epochs'])
-
-    return hps
-
-
-def run(args):
-    # Important parameters
-    hps = setup_hparams(args)
-
+def run_simple(hps):
+    print("Running simple training loop")
     # Create dataloaders
     trainloader, valloader, testloader = load_dataset()
 
     # Prepare network
-    net = networks[hps['name']]()
+    net = hps['network']()
     logger = Logger()
     if hps['restore_epoch']:
         restore(net, logger, hps)
@@ -124,8 +82,31 @@ def run(args):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
-    print("Training on", device)
-    for epoch in range(hps['start_epoch'], hps['n_epochs']):
+    print("Training", hps['name'], "on", device)
+    for epoch in range(hps['start_epoch'], 100):
+        acc_tr, loss_tr = train(net, trainloader, criterion, optimizer)
+        logger.loss_train.append(loss_tr)
+        logger.acc_train.append(acc_tr)
+
+        acc_v, loss_v = evaluate(net, valloader, criterion)
+        logger.loss_val.append(loss_v)
+        logger.acc_val.append(acc_v)
+
+        save(net, logger, hps, epoch)
+        logger.save_plt(hps)
+
+        print('Epoch %2d' % (epoch + 1),
+              'Train Accuracy: %2.2f %%' % acc_tr,
+              'Val Accuracy: %2.2f %%' % acc_v,
+              sep='\t\t')
+
+    # Reduce Learning Rate
+    print("Reducing learning rate from 0.001 to 0.0001")
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = 0.0001
+
+    # Train for 20 extra epochs
+    for epoch in range(epoch, 120):
         acc_tr, loss_tr = train(net, trainloader, criterion, optimizer)
         logger.loss_train.append(loss_tr)
         logger.acc_train.append(acc_tr)
@@ -143,5 +124,49 @@ def run(args):
               sep='\t\t')
 
 
+def run(hps):
+    # Create dataloaders
+    trainloader, valloader, testloader = load_dataset()
+
+    # Prepare network
+    net = hps['network']()
+    logger = Logger()
+    if hps['restore_epoch']:
+        restore(net, logger, hps)
+    net.to(device)
+
+    learning_rate = float(hps['lr'])
+    optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, nesterov=True, weight_decay=0.0001)
+    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=10, verbose=True)
+    criterion = nn.CrossEntropyLoss()
+
+    print("Training", hps['name'], "on", device)
+    for epoch in range(hps['start_epoch'], hps['n_epochs']):
+        acc_tr, loss_tr = train(net, trainloader, criterion, optimizer)
+        logger.loss_train.append(loss_tr)
+        logger.acc_train.append(acc_tr)
+
+        acc_v, loss_v = evaluate(net, valloader, criterion)
+        logger.loss_val.append(loss_v)
+        logger.acc_val.append(acc_v)
+
+        # Update learning rate if plateau
+        scheduler.step(acc_v)
+
+        save(net, logger, hps, epoch)
+        logger.save_plt(hps)
+
+        print('Epoch %2d' % (epoch + 1),
+              'Train Accuracy: %2.2f %%' % acc_tr,
+              'Val Accuracy: %2.2f %%' % acc_v,
+              sep='\t\t')
+
+
 if __name__ == "__main__":
-    run(sys.argv[1:])
+    # Important parameters
+    hps = setup_hparams(sys.argv[1:])
+
+    if hps['simple']:
+        run_simple(hps)
+    else:
+        run(hps)
