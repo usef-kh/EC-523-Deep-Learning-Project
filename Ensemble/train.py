@@ -12,8 +12,14 @@ from utils.checkpoint import save, restore
 
 warnings.filterwarnings("ignore")
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-networks = {'sub1_basic': basic.Subnet1, 'sub2_basic': basic.Subnet2, 'sub3_basic': basic.Subnet3,
-            'sub1_tuned': tuned.Subnet1, 'sub2_tuned': tuned.Subnet2, 'sub3_tuned': tuned.Subnet3}
+networks = {
+    'sub1_basic': basic.Subnet1,
+    'sub2_basic': basic.Subnet2,
+    'sub3_basic': basic.Subnet3,
+    'sub1_tuned': tuned.Subnet1,
+    'sub2_tuned': tuned.Subnet2,
+    'sub3_tuned': tuned.Subnet3
+}
 
 
 def train(net, dataloader, criterion, optimizer):
@@ -80,18 +86,13 @@ def setup_hparams(args):
 
     for arg in args:
         key, value = arg.split('=')
-
         if key not in hps:
             raise RuntimeError(key + ' is not a known hyper parameter')
-
         else:
             hps[key] = value
 
     if hps['name'] not in networks:
-        nets = ''
-        for name in networks:
-            nets += name + ' '
-        raise RuntimeError("Name possibilities are: " + nets)
+        raise RuntimeError("Name possibilities are: " + ' '.join(networks.keys()))
 
     hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints', hps['name'])
 
@@ -100,8 +101,6 @@ def setup_hparams(args):
 
     if hps['restore_epoch']:
         hps['start_epoch'] = int(hps['restore_epoch'])
-    else:
-        hps['start_epoch'] = 0
 
     hps['n_epochs'] = int(hps['n_epochs'])
 
