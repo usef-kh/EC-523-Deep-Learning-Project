@@ -92,8 +92,9 @@ def run_simple(hps):
         logger.loss_val.append(loss_v)
         logger.acc_val.append(acc_v)
 
-        save(net, logger, hps, epoch)
-        logger.save_plt(hps)
+        if (epoch + 1) % 20 == 0:
+              save(net, logger, hps, epoch)
+              logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
               'Train Accuracy: %2.2f %%' % acc_tr,
@@ -115,8 +116,9 @@ def run_simple(hps):
         logger.loss_val.append(loss_v)
         logger.acc_val.append(acc_v)
 
-        save(net, logger, hps, epoch)
-        logger.save_plt(hps)
+        if (epoch + 1) % 20 == 0:
+              save(net, logger, hps, epoch)
+              logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
               'Train Accuracy: %2.2f %%' % acc_tr,
@@ -152,9 +154,10 @@ def run(hps):
 
         # Update learning rate if plateau
         scheduler.step(acc_v)
-
-        save(net, logger, hps, epoch)
-        logger.save_plt(hps)
+        
+        if (epoch + 1) % 20 == 0:
+              save(net, logger, hps, epoch)
+              logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
               'Train Accuracy: %2.2f %%' % acc_tr,
