@@ -7,9 +7,9 @@ from torch import optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from data.fer2013 import load_dataset
-from utils.checkpoint import save, restore
+from utils.checkpoint import save
 from utils.hparams import setup_hparams
-from utils.logger import Logger
+from utils.setup_network import build_network
 
 warnings.filterwarnings("ignore")
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -67,17 +67,12 @@ def evaluate(net, dataloader, criterion):
     return acc, loss
 
 
-def run_simple(hps):
+def run_simple(net, logger, hps):
     print("Running simple training loop")
     # Create dataloaders
     trainloader, valloader, testloader = load_dataset()
 
-    # Prepare network
-    net = hps['network']()
-    logger = Logger()
-    if hps['restore_epoch']:
-        restore(net, logger, hps)
-    net.to(device)
+    net = net.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
@@ -116,7 +111,7 @@ def run_simple(hps):
         logger.loss_val.append(loss_v)
         logger.acc_val.append(acc_v)
 
-        if (epoch + 1) % 20 == 0:
+        if (epoch + 1) % hps['save_freq'] == 0:
               save(net, logger, hps, epoch + 1)
               logger.save_plt(hps)
 
@@ -126,16 +121,11 @@ def run_simple(hps):
               sep='\t\t')
 
 
-def run(hps):
+def run(net, logger, hps):
     # Create dataloaders
     trainloader, valloader, testloader = load_dataset()
 
-    # Prepare network
-    net = hps['network']()
-    logger = Logger()
-    if hps['restore_epoch']:
-        restore(net, logger, hps)
-    net.to(device)
+    net = net.to(device)
 
     learning_rate = float(hps['lr'])
     optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, nesterov=True, weight_decay=0.0001)
@@ -155,7 +145,7 @@ def run(hps):
         # Update learning rate if plateau
         scheduler.step(acc_v)
         
-        if (epoch + 1) % 20 == 0:
+        if (epoch + 1) % hps['save_freq'] == 0:
               save(net, logger, hps, epoch + 1)
               logger.save_plt(hps)
 
@@ -168,8 +158,9 @@ def run(hps):
 if __name__ == "__main__":
     # Important parameters
     hps = setup_hparams(sys.argv[1:])
+    logger, net = build_network(hps)
 
     if hps['simple']:
-        run_simple(hps)
+        run_simple(net, logger, hps)
     else:
-        run(hps)
+        run(net, logger, hps)

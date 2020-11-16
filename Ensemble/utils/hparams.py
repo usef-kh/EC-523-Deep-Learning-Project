@@ -1,42 +1,44 @@
 import os
 
-from subnets import basic, tuned
-
 hps = {
+    'type': 'ensemble',
     'name': None,
+    'subnet_type': 'tuned',
+    'sub1_path': None,
+    'sub1': None,
+    'sub2_path': None,
+    'sub2': None,
+    'sub3_path': None,
+    'sub3': None,
     'n_epochs': 300,
     'model_save_dir': None,
     'restore_epoch': None,
     'start_epoch': 0,
     'simple': False,
-    'lr': 0.01
-}
-
-networks = {
-    'sub1_basic': basic.Subnet1,
-    'sub2_basic': basic.Subnet2,
-    'sub3_basic': basic.Subnet3,
-    'sub1_tuned': tuned.Subnet1,
-    'sub2_tuned': tuned.Subnet2,
-    'sub3_tuned': tuned.Subnet3
+    'lr': 0.01,
+    'save_freq': 20,
 }
 
 
 def setup_hparams(args):
+
     for arg in args:
         key, value = arg.split('=')
         if key not in hps:
-            raise RuntimeError(key + ' is not a known hyper parameter')
+            raise ValueError(key + ' is not a known hyper parameter')
         else:
             hps[key] = value
-
-    if hps['name'] not in networks:
-        raise RuntimeError("Name possibilities are: " + ' '.join(networks.keys()))
 
     if hps['simple']:
         hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints', hps['name'] + '_simpletrain')
     else:
         hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints', hps['name'])
+
+    if hps['type'] == 'ensemble':
+        if hps['subnet_type'] != 'tuned' and hps['subnet_type'] != 'basic':
+            raise ValueError(hps['subnet_type'] + " is not a supported subnet type")
+    elif hps['type'] != 'subnet':
+        raise ValueError(hps['type'] + " is not a supported network")
 
     if not os.path.exists(hps['model_save_dir']):
         os.makedirs(hps['model_save_dir'])
@@ -45,7 +47,7 @@ def setup_hparams(args):
         hps['start_epoch'] = int(hps['restore_epoch'])
 
     hps['n_epochs'] = int(hps['n_epochs'])
-
-    hps['network'] = networks[hps['name']]
+    if hps['n_epochs'] < 20:
+        hps['save_freq'] = min(5, hps['n_epochs'])
 
     return hps

@@ -27,9 +27,23 @@ def restore(net, logger, hps):
 
         except Exception as e:
             print("Restore Failed! Training from scratch.")
-            print(e.message)
+            print(e)
             hps['start_epoch'] = 0
 
     else:
         print("Restore point unavailable. Training from scratch.")
         hps['start_epoch'] = 0
+
+
+def load_features(model, params):
+    model_dict = model.state_dict()
+
+    imp_params = {k: v for k, v in params.items() if k in model_dict}
+
+    # Load layers
+    model_dict.update(imp_params)
+    model.load_state_dict(imp_params)
+
+    # Freeze layers
+    for name, param in model.named_parameters():
+        param.requires_grad = False
