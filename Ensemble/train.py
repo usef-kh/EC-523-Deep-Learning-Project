@@ -117,7 +117,7 @@ def run_simple(hps):
         logger.acc_val.append(acc_v)
 
         if (epoch + 1) % 20 == 0:
-              save(net, logger, hps, epoch)
+              save(net, logger, hps, epoch + 1)
               logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
@@ -156,7 +156,7 @@ def run(hps):
         scheduler.step(acc_v)
         
         if (epoch + 1) % 20 == 0:
-              save(net, logger, hps, epoch)
+              save(net, logger, hps, epoch + 1)
               logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
