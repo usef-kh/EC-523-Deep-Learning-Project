@@ -14,7 +14,6 @@ hps = {
     'model_save_dir': None,
     'restore_epoch': None,
     'start_epoch': 0,
-    'simple': False,
     'lr': 0.01,
     'save_freq': 20,
 }
@@ -25,14 +24,11 @@ def setup_hparams(args):
     for arg in args:
         key, value = arg.split('=')
         if key not in hps:
-            raise ValueError(key + ' is not a known hyper parameter')
+            raise ValueError(key + ' is not a valid hyper parameter')
         else:
             hps[key] = value
 
-    if hps['simple']:
-        hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints', hps['name'] + '_simpletrain')
-    else:
-        hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints', hps['name'])
+    hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints', hps['name'])
 
     if hps['type'] == 'ensemble':
         if hps['subnet_type'] != 'tuned' and hps['subnet_type'] != 'basic':

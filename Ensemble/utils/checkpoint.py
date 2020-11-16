@@ -3,8 +3,11 @@ import os
 import torch
 
 
-def save(net, logger, hps, epoch):
-    path = os.path.join(hps['model_save_dir'], 'epoch_' + str(epoch))
+def save(net, logger, hps, epoch, simple=False):
+    if simple:
+        path = os.path.join(hps['model_save_dir'] + '_simpletrain', 'epoch_' + str(epoch))
+    else:
+        path = os.path.join(hps['model_save_dir'], 'epoch_' + str(epoch))
 
     checkpoint = {
         'logs': logger.get_logs(),

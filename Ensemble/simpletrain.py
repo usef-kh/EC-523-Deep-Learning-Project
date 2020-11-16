@@ -3,6 +3,7 @@ import warnings
 
 import torch
 import torch.nn as nn
+from torch import optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from data.fer2013 import load_dataset
@@ -67,18 +68,17 @@ def evaluate(net, dataloader, criterion):
 
 
 def run(net, logger, hps):
+    print("Running simple training loop")
     # Create dataloaders
     trainloader, valloader, testloader = load_dataset()
 
     net = net.to(device)
 
-    learning_rate = float(hps['lr'])
-    optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, nesterov=True, weight_decay=0.0001)
-    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=10, verbose=True)
     criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
     print("Training", hps['name'], "on", device)
-    for epoch in range(hps['start_epoch'], hps['n_epochs']):
+    for epoch in range(hps['start_epoch'], 100):
         acc_tr, loss_tr = train(net, trainloader, criterion, optimizer)
         logger.loss_train.append(loss_tr)
         logger.acc_train.append(acc_tr)
@@ -87,11 +87,32 @@ def run(net, logger, hps):
         logger.loss_val.append(loss_v)
         logger.acc_val.append(acc_v)
 
-        # Update learning rate if plateau
-        scheduler.step(acc_v)
+        if (epoch + 1) % 20 == 0:
+            save(net, logger, hps, epoch, simple=True)
+            logger.save_plt(hps)
 
-        if (epoch + 1) % hps['save_freq'] == 0:
-            save(net, logger, hps, epoch + 1)
+        print('Epoch %2d' % (epoch + 1),
+              'Train Accuracy: %2.2f %%' % acc_tr,
+              'Val Accuracy: %2.2f %%' % acc_v,
+              sep='\t\t')
+
+    # Reduce Learning Rate
+    print("Reducing learning rate from 0.001 to 0.0001")
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = 0.0001
+
+    # Train for 20 extra epochs
+    for epoch in range(epoch, 120):
+        acc_tr, loss_tr = train(net, trainloader, criterion, optimizer)
+        logger.loss_train.append(loss_tr)
+        logger.acc_train.append(acc_tr)
+
+        acc_v, loss_v = evaluate(net, valloader, criterion)
+        logger.loss_val.append(loss_v)
+        logger.acc_val.append(acc_v)
+
+        if (epoch + 1) % 20 == 0:
+            save(net, logger, hps, epoch, simple=True)
             logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
@@ -103,6 +124,7 @@ def run(net, logger, hps):
     print('Test Accuracy: %2.2f %%' % acc_test,
           'Test Loss: %2.6f %%' % loss_test,
           sep='\t\t')
+
 
 if __name__ == "__main__":
     # Important parameters
