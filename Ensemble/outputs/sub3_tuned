@@ -1,0 +1,16 @@
+Training sub3_tuned on cuda:0
+Epoch  1		Train Accuracy: 32.08 %		Val Accuracy: 26.83 %
+Epoch  2		Train Accuracy: 43.57 %		Val Accuracy: 38.09 %
+Epoch  3		Train Accuracy: 48.57 %		Val Accuracy: 47.31 %
+Epoch  4		Train Accuracy: 51.46 %		Val Accuracy: 51.91 %
+Epoch  5		Train Accuracy: 52.83 %		Val Accuracy: 45.36 %
+Epoch  6		Train Accuracy: 54.07 %		Val Accuracy: 45.17 %
+Epoch  7		Train Accuracy: 55.13 %		Val Accuracy: 48.68 %
+Epoch  8		Train Accuracy: 56.15 %		Val Accuracy: 52.86 %
+Epoch  9		Train Accuracy: 57.52 %		Val Accuracy: 56.81 %
+Epoch 10		Train Accuracy: 57.75 %		Val Accuracy: 56.09 %
+Epoch 11		Train Accuracy: 58.42 %		Val Accuracy: 56.87 %
+Epoch 12		Train Accuracy: 59.51 %		Val Accuracy: 56.09 %
+Epoch 13		Train Accuracy: 59.72 %		Val Accuracy: 58.79 %
+Epoch 14		Train Accuracy: 59.81 %		Val Accuracy: 61.21 %
+Epoch 15		Train Accuracy: 60.75 %		Val Accuracy: 61.63 %

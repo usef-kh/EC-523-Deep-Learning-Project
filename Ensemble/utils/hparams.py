@@ -4,12 +4,12 @@ from subnets import basic, tuned
 
 hps = {
     'name': None,
-    'n_epochs': 120,
+    'n_epochs': 300,
     'model_save_dir': None,
     'restore_epoch': None,
     'start_epoch': 0,
     'simple': False,
-    'lr': 0.001
+    'lr': 0.01
 }
 
 networks = {

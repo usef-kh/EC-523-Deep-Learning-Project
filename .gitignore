@@ -1,4 +1,4 @@
 /datasets/
-/.idea/
-/ensemble/checkpoints/
-/ensemble/.idea/
+.idea/
+__pycache__/
+checkpoints/
