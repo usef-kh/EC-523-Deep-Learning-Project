@@ -28,6 +28,7 @@ def process_video(path):
 
     chunk_len = int(np.ceil(2.02 * fps))
     n_chunks = int(np.ceil(n_frames / chunk_len))
+    # n_chunks = int(n_frames // chunk_len)
     n_keyframes = chunk_len // 4
 
     check = True
@@ -73,10 +74,6 @@ def process_video(path):
     return chunk_keys
 
 
-path = r'..\..\datasets\enterface\original\subject 11\fear\sentence 3\s12_fe_3.avi'
-# Load the cascade
-
-frames = process_video(path)
 
 def face_detection(frame):
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -87,3 +84,19 @@ def face_detection(frame):
     resized_face = cv2.resize(face, (277, 277), interpolation=cv2.INTER_AREA)
 
     return resized_face
+
+path = r'..\..\datasets\enterface\original\subject 11\fear\sentence 3\s12_fe_3.avi'
+key_frames = process_video(path)
+
+for frames in key_frames:
+
+    for frame in frames:
+        plt.figure()
+        plt.imshow(frame, cmap='gray')
+        plt.show()
+
+        face = face_detection(frame)
+
+        plt.figure()
+        plt.imshow(face, cmap='gray')
+        plt.show()
