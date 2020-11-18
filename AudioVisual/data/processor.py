@@ -1,8 +1,7 @@
-import os
-
 import cv2
 import numpy as np
 from librosa.feature import melspectrogram
+from matplotlib import pyplot as plt
 from scipy.stats import chisquare
 
 
@@ -64,13 +63,27 @@ def process_video(path):
 
         return keyframes
 
-    chunk_keys = np.zeros((n_chunks, n_keyframes, *frame_shape))
+    chunk_keys = np.zeros((n_chunks, n_keyframes, *frame_shape), dtype=np.uint8)
     for i, chunk in enumerate(chunks):
         frames = get_keyframes(chunk)
 
         chunk_keys[i] = frames
 
     print(chunk_keys.shape)
+    return chunk_keys
+
 
 path = r'..\..\datasets\enterface\original\subject 11\fear\sentence 3\s12_fe_3.avi'
+# Load the cascade
 
+frames = process_video(path)
+
+def face_detection(frame):
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    faces = face_cascade.detectMultiScale(frame, 1.1, 4)
+    x, y, w, h = faces[0]  # theres only 1 face in our images
+
+    face = frame[y:y + h, x:x + w]  # Extract face from frame
+    resized_face = cv2.resize(face, (277, 277), interpolation=cv2.INTER_AREA)
+
+    return resized_face
