@@ -13,6 +13,6 @@ module load miniconda/4.7.5
 conda activate ec523
 export PYTHONPATH=/projectnb/ykh/project/Ensemble/:$PYTHONPATH
 
-cd..
+cd ..
 
 python train.py type=subnet name=sub1_tuned
