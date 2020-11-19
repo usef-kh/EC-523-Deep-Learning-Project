@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from scipy.stats import chisquare
 
 
-def process_audio_old(path):
+def process_audio(path):
     y, sr = librosa.load(path, sr=None)
 
 
@@ -103,25 +103,8 @@ def face_detection(frame):
     return resized_face
 
 
-def process_audio(path):
-    y, sr = librosa.load(path)
-
-    n_samples = len(y)
-    window_len = int(40 / 1000 * sr)
-    shift = int(0.5 * window_len)
-    n_chunks = n_samples // shift
-
-    chunks = []
-    for i in range(0, n_samples, shift):
-        chunks.append(y[i:i + window_len])
-
-    print(len(chunks), n_chunks)
-    print(n_samples, sr, n_samples / sr)
-    print(y)
-
-
 audio_path = r'..\..\datasets\enterface\wav\subject 15\fear\sentence 1\s15_fe_1.wav'
-specs = process_audio_old(audio_path)
+specs = process_audio(audio_path)
 
 fig, axes = plt.subplots(len(specs), 1)
 for ax, spec in zip(axes, specs):
