@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from data.fer2013 import load_dataset
+from data.ckplus import get_dataloaders
 from utils.checkpoint import save
 from utils.hparams import setup_hparams
 from utils.setup_network import build_network
@@ -68,7 +68,7 @@ def evaluate(net, dataloader, criterion):
 
 def run(net, logger, hps):
     # Create dataloaders
-    trainloader, valloader, testloader = load_dataset()
+    trainloader, valloader, testloader = get_dataloaders()
 
     net = net.to(device)
 
@@ -103,6 +103,7 @@ def run(net, logger, hps):
     print('Test Accuracy: %2.2f %%' % acc_test,
           'Test Loss: %2.6f %%' % loss_test,
           sep='\t\t')
+
 
 if __name__ == "__main__":
     # Important parameters

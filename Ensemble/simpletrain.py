@@ -4,9 +4,8 @@ import warnings
 import torch
 import torch.nn as nn
 from torch import optim
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from data.fer2013 import load_dataset
+from data.fer2013 import get_dataloaders
 from utils.checkpoint import save
 from utils.hparams import setup_hparams
 from utils.setup_network import build_network
@@ -70,7 +69,7 @@ def evaluate(net, dataloader, criterion):
 def run(net, logger, hps):
     print("Running simple training loop")
     # Create dataloaders
-    trainloader, valloader, testloader = load_dataset()
+    trainloader, valloader, testloader = get_dataloaders()
 
     net = net.to(device)
 
