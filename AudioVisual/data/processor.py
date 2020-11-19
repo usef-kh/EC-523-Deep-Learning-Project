@@ -10,11 +10,9 @@ from scipy.stats import chisquare
 def process_audio(path):
     y, sr = librosa.load(path, sr=None)
 
-
     n_samples = len(y)
     chunk_len = int(2.02 * sr)  # do i ceil?
     n_chunks = int(n_samples // chunk_len)
-    print(sr)
 
     spectrograms = []
     for i in range(n_chunks):
@@ -85,10 +83,8 @@ def process_video(path):
     chunk_keys = np.zeros((n_chunks, n_keyframes, *frame_shape), dtype=np.uint8)
     for i, chunk in enumerate(chunks):
         frames = get_keyframes(chunk)
-
         chunk_keys[i] = frames
 
-    print(chunk_keys.shape)
     return chunk_keys
 
 
