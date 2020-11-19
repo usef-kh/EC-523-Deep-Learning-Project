@@ -1,30 +1,38 @@
+import collections
 import os
 
 import numpy as np
-from PIL import Image
-from sklearn.model_selection import train_test_split
-
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
+from PIL import Image
+from matplotlib import pyplot as plt
+from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader
+
 from data.dataset import CustomDataset
 
 
 def load_data(path='../datasets/ckplus'):
     ckplus = {}
     for dir, subdir, files in os.walk(path):
+
         if files:
+
             sections = os.path.split(dir)
             emotion = sections[-1]
 
-            ckplus[emotion] = [os.path.join(dir, file) for file in files]
+            temp = collections.defaultdict(list)
+            for file in files:
+                subject = file.split("_")[0]
+                temp[subject].append(os.path.join(dir, file))
 
-    emotion_mapping = {emotion: i for i, emotion in enumerate(ckplus.keys())}
+            ckplus[emotion] = temp
 
-    return ckplus, emotion_mapping
+    return ckplus
 
 
-def prepare_data(data, emotion_mapping):
+def prepare_data(data):
     n_images = sum(len(paths) for paths in data.values())
+    emotion_mapping = {emotion: i for i, emotion in enumerate(data.keys())}
 
     image_array = np.zeros(shape=(n_images, 48, 48))
     image_label = np.zeros(n_images)
@@ -40,22 +48,39 @@ def prepare_data(data, emotion_mapping):
     return image_array, image_label
 
 
-def split_data(X, y):
-    xtrain, xtest, ytrain, ytest = train_test_split(X, y, test_size=0.2, random_state=1)
-    xtrain, xval, ytrain, yval = train_test_split(xtrain, ytrain, test_size=0.25, random_state=1)  # 0.25 * 0.8 = 0.2
+def split_data(data):
+    train = collections.defaultdict(list)
+    test = collections.defaultdict(list)
+    val = collections.defaultdict(list)
 
-    return (xtrain, ytrain), (xval, yval), (xtest, ytest)
+    for emotion, subjects in data.items():
+
+        subjects_train, subjects_xtest = train_test_split(list(subjects.keys()), test_size=0.2, random_state=1,
+                                                          shuffle=True)
+        subjects_train, subjects_val = train_test_split(subjects_train, test_size=0.25, random_state=1,
+                                                        shuffle=True)  # 0.25 * 0.8 = 0.2
+
+        for subject in subjects_train:
+            train[emotion].extend(subjects[subject])
+
+        for subject in subjects_val:
+            val[emotion].extend(subjects[subject])
+
+        for subject in subjects_xtest:
+            test[emotion].extend(subjects[subject])
+
+    return train, val, test
 
 
 def get_dataloaders():
-    ckplus, emotion_mapping = load_data()
 
-    images, labels = prepare_data(ckplus, emotion_mapping)
-    train, val, test = split_data(images, labels)
+    ckplus = load_data()
+    train, val, test = split_data(ckplus)
 
-    xtrain, ytrain = train
-    xval, yval = val
-    xtest, ytest = test
+    xtrain, ytrain = prepare_data(train)
+    xval, yval = prepare_data(val)
+    xtest, ytest = prepare_data(test)
+
 
     mu, st = 0, 1
     train_transform = transforms.Compose([
@@ -81,3 +106,26 @@ def get_dataloaders():
     testloader = DataLoader(test, batch_size=100, shuffle=True, num_workers=2)
 
     return trainloader, valloader, testloader
+
+
+if __name__ == '__main__':
+    ckplus = load_data('../../datasets/ckplus')
+
+    train, val, test = split_data(ckplus)
+
+    # for k, v in train.items():
+    #     print(k)
+    #     print(*v, sep='\n')
+
+    image_array, image_label = prepare_data(train)
+    #
+    #
+    # train, val, test = split_data(image_array, image_label)
+    #
+    for i in range(12):
+        print(image_label[i])
+        plt.figure()
+        plt.imshow(image_array[i])
+        plt.show()
+
+    # print(ckplus)
