@@ -1,20 +1,38 @@
 import cv2
+import librosa
+import librosa.display
 import numpy as np
 from librosa.feature import melspectrogram
 from matplotlib import pyplot as plt
 from scipy.stats import chisquare
 
 
-def process_audio(y, sr):
-    spectogram = melspectrogram(
-        y=y,
-        sr=sr,
-        win_length=int(sr / 1000) * 40,
-        hop_length=int(sr / 1000) * 20,
-        n_mels=25
-    )
+def process_audio_old(path):
+    y, sr = librosa.load(path, sr=None)
 
-    return spectogram
+
+    n_samples = len(y)
+    chunk_len = int(2.02 * sr)  # do i ceil?
+    n_chunks = int(n_samples // chunk_len)
+    print(sr)
+
+    spectrograms = []
+    for i in range(n_chunks):
+        chunk = y[i * chunk_len: (i * chunk_len + chunk_len)]
+
+        spectrogram = melspectrogram(
+            y=chunk,
+            sr=sr,
+            win_length=int(sr / 1000) * 40,
+            hop_length=int(sr / 1000) * 20,
+            n_mels=25
+        )
+
+        spectrograms.append(spectrogram)
+
+    spectrograms = [librosa.power_to_db(spec, ref=np.max) for spec in spectrograms]
+
+    return spectrograms
 
 
 def process_video(path):
@@ -85,8 +103,33 @@ def face_detection(frame):
     return resized_face
 
 
-path = r'..\..\datasets\enterface\original\subject 15\fear\sentence 1\s15_fe_1.avi'
-key_frames = process_video(path)
+def process_audio(path):
+    y, sr = librosa.load(path)
+
+    n_samples = len(y)
+    window_len = int(40 / 1000 * sr)
+    shift = int(0.5 * window_len)
+    n_chunks = n_samples // shift
+
+    chunks = []
+    for i in range(0, n_samples, shift):
+        chunks.append(y[i:i + window_len])
+
+    print(len(chunks), n_chunks)
+    print(n_samples, sr, n_samples / sr)
+    print(y)
+
+
+audio_path = r'..\..\datasets\enterface\wav\subject 15\fear\sentence 1\s15_fe_1.wav'
+specs = process_audio_old(audio_path)
+
+fig, axes = plt.subplots(len(specs), 1)
+for ax, spec in zip(axes, specs):
+    ax.imshow(spec)
+plt.show()
+
+video_path = r'..\..\datasets\enterface\original\subject 15\fear\sentence 1\s15_fe_1.avi'
+key_frames = process_video(video_path)
 
 for frames in key_frames:
 
