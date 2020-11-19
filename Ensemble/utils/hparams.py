@@ -28,7 +28,7 @@ def setup_hparams(args):
         else:
             hps[key] = value
 
-    hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints', hps['name'])
+    hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints/ckplus', hps['name'])
 
     if hps['type'] == 'ensemble':
         if hps['subnet_type'] != 'tuned' and hps['subnet_type'] != 'basic':
