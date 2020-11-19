@@ -111,7 +111,7 @@ def run(net, logger, hps):
         logger.acc_val.append(acc_v)
 
         if (epoch + 1) % 20 == 0:
-            save(net, logger, hps, epoch, simple=True)
+            save(net, logger, hps, epoch + 1)
             logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
@@ -127,7 +127,7 @@ def run(net, logger, hps):
 
 if __name__ == "__main__":
     # Important parameters
-    hps = setup_hparams(sys.argv[1:])
-    logger, net = build_network(hps)
+    hps = setup_hparams(sys.argv[1:] + ['simple=True'])
 
+    logger, net = build_network(hps)
     run(net, logger, hps)
