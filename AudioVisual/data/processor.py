@@ -28,9 +28,17 @@ def process_audio(path):
 
         spectrograms.append(spectrogram)
 
-    spectrograms = [librosa.power_to_db(spec, ref=np.max) for spec in spectrograms]
+    features = np.zeros((n_chunks, 3, *spectrograms[0].shape))
 
-    return spectrograms
+    for i, spec in enumerate(spectrograms):
+        spec_db = librosa.power_to_db(spec, ref=np.max)
+        delta = librosa.feature.delta(spec_db, width=3)
+        double_delta = librosa.feature.delta(delta, width=3)
+
+        for j, feature in enumerate([spec_db, delta, double_delta]):
+            features[i][j] = feature
+
+    return features
 
 
 def process_video(path):
@@ -100,25 +108,38 @@ def face_detection(frame):
 
 
 audio_path = r'..\..\datasets\enterface\wav\subject 15\fear\sentence 1\s15_fe_1.wav'
-specs = process_audio(audio_path)
+chunks = process_audio(audio_path)
+print(chunks.shape)
 
-fig, axes = plt.subplots(len(specs), 1)
-for ax, spec in zip(axes, specs):
-    ax.imshow(spec)
-plt.show()
+for chunk in chunks:
+    fig, axes = plt.subplots(3, 1)
+    for feature, ax in zip(chunk, axes):
+        ax.imshow(feature)
+    plt.show()
 
-video_path = r'..\..\datasets\enterface\original\subject 15\fear\sentence 1\s15_fe_1.avi'
-key_frames = process_video(video_path)
 
-for frames in key_frames:
+#
+#
+# axes[0].imshow(spec)
+# axes[1].imshow(delta)
+# axes[2].imshow(double_delta)
+# # for ax, spec in zip(axes, specs):
+# #     print(spec.shape)
+# #     ax.imshow(spec)
+# plt.show()
 
-    for frame in frames:
-        plt.figure()
-        plt.imshow(frame, cmap='gray')
-        plt.show()
-
-        face = face_detection(frame)
-
-        plt.figure()
-        plt.imshow(face, cmap='gray')
-        plt.show()
+# video_path = r'..\..\datasets\enterface\original\subject 15\fear\sentence 1\s15_fe_1.avi'
+# key_frames = process_video(video_path)
+#
+# for frames in key_frames:
+#
+#     for frame in frames:
+#         plt.figure()
+#         plt.imshow(frame, cmap='gray')
+#         plt.show()
+#
+#         face = face_detection(frame)
+#
+#         plt.figure()
+#         plt.imshow(face, cmap='gray')
+#         plt.show()

@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from data.ckplus import get_dataloaders
+from data.fer2013 import get_dataloaders
 from utils.checkpoint import save
 from utils.hparams import setup_hparams
 from utils.setup_network import build_network
