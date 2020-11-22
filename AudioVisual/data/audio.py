@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from torch.utils.data import DataLoader
 
-from AudioVisual.data.dataset import CustomDataset
+from data.dataset import CustomDataset
 
 
 class AudioData:
@@ -103,7 +103,7 @@ class AudioData:
 
                     n_samples += samples.shape[0]
 
-        X = np.zeros((n_samples, *samples[0].shape))
+        X = np.zeros((n_samples, *X_arr[0].shape[1:]))
         Y = np.zeros(n_samples)
         i = 0
         for x, y in zip(X_arr, Y_arr):
@@ -141,6 +141,8 @@ class AudioData:
 
 if __name__ == '__main__':
     dataset = AudioData(r"..\..\datasets\enterface\wav")
+    print(dataset.data_paths)
+    print('hi yousif')
     train, val, test = dataset.get_dataloaders()
 
     train = iter(train)

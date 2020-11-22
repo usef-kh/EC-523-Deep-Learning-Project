@@ -1,9 +1,9 @@
-# import numpy as np
-#
-# import torch
-# import torch.nn as nn
-# import torch.nn.functional as F
-#
+import numpy as np
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
 # from sklearn.svm import SVC
 #
 # class SVM:
@@ -38,42 +38,44 @@
 #         return self.activation(torch.add(x.mm(self.alpha), self.bias))
 #
 #
-# class CNN_2D(nn.Module):
-#
-#     def __init__(self):
-#         super(CNN_2D, self).__init__()
-#         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2)
-#         self.conv2 = nn.Conv2d(64, 128, kernel_size=7, stride=2)
-#         self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=2)
-#         self.conv4 = nn.Conv2d(256, 512, kernel_size=3, stride=2)
-#
-#         self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2)
-#         self.avg_pool = nn.AvgPool2d(kernel_size=2, stride=2)
-#
-#         self.fc1 = nn.Linear(?, 4096)
-#         self.fc2 = nn.Linear(4096, 4096)
-#         self.fc3 = nn.Linear(4096, 7)
-#
-#         self.drop = nn.Dropout(p=0.5)
-#
-#     def forward(self, x):
-#         x = self.drop(x)
-#
-#         x = F.elu(self.conv1(x))
-#         x = self.max_pool(x)
-#
-#         x = F.elu(self.conv2(x))
-#         x = self.avg_pool(x)
-#
-#         x = F.elu(self.conv3(x))
-#         x = self.avg_pool(x)
-#
-#         x = F.elu(self.conv4(x))
-#         x = x.view(-1, ?)
-#
-#         x = F.elu(self.fc1(x))
-#         x = F.elu(self.fc2(x))
-#
-#         x = F.elu(self.fc3(x))
-#
-#         return x
+class CNN_2D(nn.Module):
+
+    def __init__(self):
+        super(CNN_2D, self).__init__()
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=2)
+        self.conv2 = nn.Conv2d(64, 128, kernel_size=7, stride=2, padding=2)
+        self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=2)
+        self.conv4 = nn.Conv2d(256, 512, kernel_size=3, stride=2, padding=2)
+
+        self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.avg_pool = nn.AvgPool2d(kernel_size=2, stride=2)
+
+        self.fc1 = nn.Linear(512 * 2 * 2, 4096)
+        self.fc2 = nn.Linear(4096, 4096)
+        self.fc3 = nn.Linear(4096, 7)
+
+        self.drop = nn.Dropout(p=0.5)
+
+    def forward(self, x):
+        x = self.drop(x)
+        # print(x.shape)
+        x = F.elu(self.conv1(x))
+        # print(x.shape)
+        x = self.max_pool(x)
+        # print(x.shape)
+        x = F.elu(self.conv2(x))
+        x = self.avg_pool(x)
+        # print(x.shape)
+        x = F.elu(self.conv3(x))
+        x = self.avg_pool(x)
+        # print(x.shape)
+        x = F.elu(self.conv4(x))
+        # print(x.shape)
+        x = x.view(-1, 512 * 2 * 2)
+        # print(x.shape)
+        x = F.elu(self.fc1(x))
+        x = F.elu(self.fc2(x))
+
+        x = F.elu(self.fc3(x))
+
+        return x
