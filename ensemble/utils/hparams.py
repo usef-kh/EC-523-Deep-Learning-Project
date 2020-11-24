@@ -4,7 +4,7 @@ hps = {
     'network': '',              # ensemble vs subnet
     'name': '',                 # network name
     'n_epochs': 300,
-    'model_save_dir': None,     # where will checkpoints be stored (path created automatically using hps[name]
+    'model_save_dir': None,     # where will checkpoints be stored (path created automatically using hps[name])
     'restore_epoch': None,      # continue training from a specific saved point
     'start_epoch': 0,
     'lr': 0.01,                 # starting learning rate
