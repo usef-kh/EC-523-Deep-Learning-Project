@@ -21,6 +21,8 @@ def train(net, dataloader, criterion, optimizer):
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
 
+        # print(inputs.shape, labels.shape)
+
         # zero the parameter gradients
         optimizer.zero_grad()
 

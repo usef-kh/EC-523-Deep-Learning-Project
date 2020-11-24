@@ -50,7 +50,7 @@ class CNN_2D(nn.Module):
         self.max_pool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.avg_pool = nn.AvgPool2d(kernel_size=2, stride=2)
 
-        self.fc1 = nn.Linear(512 * 2 * 2, 4096)
+        self.fc1 = nn.Linear(512 * 2 * 4, 4096)
         self.fc2 = nn.Linear(4096, 4096)
         self.fc3 = nn.Linear(4096, 7)
 
@@ -71,7 +71,7 @@ class CNN_2D(nn.Module):
         # print(x.shape)
         x = F.elu(self.conv4(x))
         # print(x.shape)
-        x = x.view(-1, 512 * 2 * 2)
+        x = x.view(-1, 512 * 2 * 4)
         # print(x.shape)
         x = F.elu(self.fc1(x))
         x = F.elu(self.fc2(x))

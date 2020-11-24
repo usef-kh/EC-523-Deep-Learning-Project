@@ -11,6 +11,8 @@ from torch.utils.data import DataLoader
 from matplotlib import pyplot as plt
 from data.dataset import CustomDataset
 
+from models.models import CNN_2D
+
 
 class AudioData:
 
@@ -56,41 +58,57 @@ class AudioData:
     def process_audio(self, path):
         y, sr = librosa.load(path)
 
-        n_samples = len(y)
-        chunk_len = int(2.02 * sr)  # do i ceil?
-        n_chunks = int(n_samples // chunk_len)
-
-        spectrograms = []
-        for i in range(n_chunks):
-            chunk = y[i * chunk_len: (i * chunk_len + chunk_len)]
-
-            spectrogram = melspectrogram(
-                y=chunk,
-                sr=sr,
-                win_length=int(sr / 1000) * 40,
-                hop_length=int(sr / 1000) * 20,
-                n_mels=25
-            )
-
-            spectrograms.append(spectrogram)
-
-        if not spectrograms:
+        if len(y) > sr * 7:
             return
 
-        samples = np.zeros((n_chunks, *spectrograms[0].shape, 3))
+        arr = np.zeros((7 * sr,))
+        arr[:len(y)] = y
 
-        for i, spec in enumerate(spectrograms):
-            spec_db = spec #librosa.power_to_db(spec, ref=np.max)
-            delta = librosa.feature.delta(spec_db, width=3)
-            double_delta = librosa.feature.delta(delta, width=3)
+        spectrogram = melspectrogram(
+            y=arr,
+            sr=sr,
+            win_length=int(sr / 1000) * 40,
+            hop_length=int(sr / 1000) * 20,
+            n_mels=25
+        )
 
-            for j, feature in enumerate([spec_db, delta, double_delta]):
-                samples[i, :, :, j] = feature
-
-        return samples
+        return spectrogram
+        # sample =
+        # # n_samples = len(y)
+        # # chunk_len = int(2.02 * sr)  # do i ceil?
+        # # n_chunks = int(n_samples // chunk_len)
+        #
+        # spectrograms = []
+        # for i in range(n_chunks):
+        #     chunk = y[i * chunk_len: (i * chunk_len + chunk_len)]
+        #
+        #     spectrogram = melspectrogram(
+        #         y=chunk,
+        #         sr=sr,
+        #         win_length=int(sr / 1000) * 40,
+        #         hop_length=int(sr / 1000) * 20,
+        #         n_mels=25
+        #     )
+        #
+        #     spectrograms.append(spectrogram)
+        #
+        # if not spectrograms:
+        #     return
+        #
+        # samples = np.zeros((n_chunks, *spectrograms[0].shape, 3))
+        #
+        # for i, spec in enumerate(spectrograms):
+        #     spec_db = spec #librosa.power_to_db(spec, ref=np.max)
+        #     delta = librosa.feature.delta(spec_db, width=3)
+        #     double_delta = librosa.feature.delta(delta, width=3)
+        #
+        #     for j, feature in enumerate([spec_db, delta, double_delta]):
+        #         samples[i, :, :, j] = feature
+        #
+        # return samples
 
     def prepare_data(self, data):
-        n_samples, X_arr, Y_arr = 0, [], []
+        X_arr, Y_arr = [], []
 
         for emotion, paths in data.items():
 
@@ -100,18 +118,28 @@ class AudioData:
                 if samples is not None:
                     X_arr.append(samples)
                     Y_arr.append(emotion)
+                    # print(samples.shape)
 
-                    n_samples += samples.shape[0]
+                    # n_samples += samples.shape[0]
 
-        X = np.zeros((n_samples, *X_arr[0].shape[1:]))
-        Y = np.zeros(n_samples)
+        X = np.zeros((len(X_arr), *X_arr[0].shape))
+        Y = np.zeros(len(X_arr))
         i = 0
         for x, y in zip(X_arr, Y_arr):
-            n = x.shape[0]
-            X[i: i + n] = x
-            Y[i: i + n] = self.emotion_mapping[y]
-
-            i += n
+            X[i] = x
+            Y[i] = self.emotion_mapping[y]
+            i += 1
+        # # print
+        #
+        # X = np.zeros((n_samples, *X_arr[0].shape[1:]))
+        # Y = np.zeros(n_samples)
+        # i = 0
+        # for x, y in zip(X_arr, Y_arr):
+        #     n = x.shape[0]
+        #     X[i: i + n] = x
+        #     Y[i: i + n] = self.emotion_mapping[y]
+        #
+        #     i += n
 
         X, Y = shuffle(X, Y)
 
@@ -132,43 +160,19 @@ class AudioData:
         val = CustomDataset(xval, yval, transform)
         test = CustomDataset(xtest, ytest, transform)
 
-        trainloader = DataLoader(train, batch_size=100, shuffle=True, num_workers=2)
-        valloader = DataLoader(val, batch_size=100, shuffle=True, num_workers=2)
-        testloader = DataLoader(test, batch_size=100, shuffle=True, num_workers=2)
+        trainloader = DataLoader(train, batch_size=32, shuffle=True, num_workers=2)
+        valloader = DataLoader(val, batch_size=32, shuffle=True, num_workers=2)
+        testloader = DataLoader(test, batch_size=32, shuffle=True, num_workers=2)
 
         return trainloader, valloader, testloader
 
 
 if __name__ == '__main__':
     dataset = AudioData(r"..\..\datasets\enterface\wav")
-    # print(dataset.data_paths)
+    train, val, test = dataset.split()
 
-    spec = dataset.process_audio(dataset.data_paths['anger'][0])
-    print(spec.shape)
+    xtrain, ytrain = dataset.prepare_data(train)
+    # xval, yval = dataset.prepare_data(val)
+    # xtest, ytest = dataset.prepare_data(test)
 
-    audio_lengths = []
-    for emotion, paths in dataset.data_paths.items():
-        for path in paths:
-            y, sr = librosa.load(path)
-
-            audio_lengths.append(len(y) / sr)
-        print(emotion)
-
-    plt.figure()
-    plt.plot(audio_lengths)
-    plt.show()
-
-    plt.figure()
-    plt.hist(audio_lengths, bins=100)
-    plt.show()
-
-    print(min(audio_lengths), max(audio_lengths))
-
-
-    # print('hi yousif')
-    # train, val, test = dataset.get_dataloaders()
-
-    # train = iter(train)
-    # X, Y = train.next()
-    # print(X.shape, Y.shape)
-    # # print(X[0])
+    print(xtrain.shape, ytrain.shape)
