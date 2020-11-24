@@ -1,7 +1,7 @@
 #!/bin/bash -l
 
-#$ -N sub3			# Job name
-#$ -P ec523			# Project name
+#$ -N sub3			        # Job name
+#$ -P ec523			        # Project name
 #$ -o ../outputs/sub3		# Output file name
 #$ -pe omp 2		
 #$ -l gpus=1 		
@@ -15,4 +15,4 @@ export PYTHONPATH=/projectnb/ykh/project/Ensemble/:$PYTHONPATH
 
 cd ..
 
-python train.py type=subnet name=sub3_tuned
+python train.py network=sub3_tuned name=sub3
