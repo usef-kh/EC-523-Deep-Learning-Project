@@ -8,7 +8,7 @@ from librosa.feature import melspectrogram
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from torch.utils.data import DataLoader
-
+from matplotlib import pyplot as plt
 from data.dataset import CustomDataset
 
 
@@ -54,7 +54,7 @@ class AudioData:
         return train, val, test
 
     def process_audio(self, path):
-        y, sr = librosa.load(path, sr=None)
+        y, sr = librosa.load(path)
 
         n_samples = len(y)
         chunk_len = int(2.02 * sr)  # do i ceil?
@@ -80,7 +80,7 @@ class AudioData:
         samples = np.zeros((n_chunks, *spectrograms[0].shape, 3))
 
         for i, spec in enumerate(spectrograms):
-            spec_db = librosa.power_to_db(spec, ref=np.max)
+            spec_db = spec #librosa.power_to_db(spec, ref=np.max)
             delta = librosa.feature.delta(spec_db, width=3)
             double_delta = librosa.feature.delta(delta, width=3)
 
@@ -141,11 +141,34 @@ class AudioData:
 
 if __name__ == '__main__':
     dataset = AudioData(r"..\..\datasets\enterface\wav")
-    print(dataset.data_paths)
-    print('hi yousif')
-    train, val, test = dataset.get_dataloaders()
+    # print(dataset.data_paths)
 
-    train = iter(train)
-    X, Y = train.next()
-    print(X.shape, Y.shape)
-    # print(X[0])
+    spec = dataset.process_audio(dataset.data_paths['anger'][0])
+    print(spec.shape)
+
+    audio_lengths = []
+    for emotion, paths in dataset.data_paths.items():
+        for path in paths:
+            y, sr = librosa.load(path)
+
+            audio_lengths.append(len(y) / sr)
+        print(emotion)
+
+    plt.figure()
+    plt.plot(audio_lengths)
+    plt.show()
+
+    plt.figure()
+    plt.hist(audio_lengths, bins=100)
+    plt.show()
+
+    print(min(audio_lengths), max(audio_lengths))
+
+
+    # print('hi yousif')
+    # train, val, test = dataset.get_dataloaders()
+
+    # train = iter(train)
+    # X, Y = train.next()
+    # print(X.shape, Y.shape)
+    # # print(X[0])
