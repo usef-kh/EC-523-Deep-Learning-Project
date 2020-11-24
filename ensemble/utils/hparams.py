@@ -35,17 +35,17 @@ def setup_hparams(args):
 
     # Invalid network check
     if hps['network'] not in possible_nets:
-        raise ValueError("Network Invalid: Possible ones include" + '\n - '.join(possible_nets))
+        raise ValueError("Invalid network.\nPossible ones include:" + '\n - '.join(possible_nets))
 
     if hps['subnet_type'] not in {'tuned', 'basic'}:
-        raise ValueError("Invalid Subnet Type: Possible ones include" + '\n - tuned\n - basic')
+        raise ValueError("Invalid subnet type.\nPossible ones include:" + '\n - tuned\n - basic')
 
     # invalid parameter check
     try:
         hps['n_epochs'] = int(hps['n_epochs'])
         hps['start_epoch'] = int(hps['start_epoch'])
-        hps['lr'] = float(hps['lr'])
         hps['save_freq'] = int(hps['save_freq'])
+        hps['lr'] = float(hps['lr'])
 
         if hps['restore_epoch']:
             hps['restore_epoch'] = int(hps['restore_epoch'])
@@ -56,7 +56,7 @@ def setup_hparams(args):
             hps['save_freq'] = min(5, hps['n_epochs'])
 
     except Exception as e:
-        raise ValueError("Invalid Input")
+        raise ValueError("Invalid input parameters")
 
     # create checkpoint directory
     hps['model_save_dir'] = os.path.join(os.getcwd(), 'checkpoints', hps['name'])

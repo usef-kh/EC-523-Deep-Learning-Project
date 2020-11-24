@@ -1,7 +1,6 @@
 import torch
 
-from models.ensemble import Ensemble
-from models import basic_subnets, tuned_subnets
+from models import basic_subnets, tuned_subnets, ensemble
 from utils.checkpoint import load_features, restore
 from utils.logger import Logger
 
@@ -12,11 +11,11 @@ nets = {
     'sub1_tuned': tuned_subnets.Subnet1,
     'sub2_tuned': tuned_subnets.Subnet2,
     'sub3_tuned': tuned_subnets.Subnet3,
-    'ensemble': Ensemble
+    'ensemble': ensemble.Ensemble
 }
 
 
-def build_network(hps):
+def setup_network(hps):
     if hps['network'] != 'ensemble':
         net = nets[hps['network']]()
 
@@ -44,7 +43,6 @@ def build_network(hps):
             raise RuntimeError(e)
 
         net = nets[hps['network']](sub1, sub2, sub3)
-
 
     # Prepare logger
     logger = Logger()

@@ -8,7 +8,7 @@ from torch import optim
 from data.ckplus import get_dataloaders
 from utils.checkpoint import save
 from utils.hparams import setup_hparams
-from utils.setup_network import build_network
+from utils.setup_network import setup_network
 
 warnings.filterwarnings("ignore")
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -129,5 +129,5 @@ if __name__ == "__main__":
     # Important parameters
     hps = setup_hparams(sys.argv[1:] + ['simple=True'])
 
-    logger, net = build_network(hps)
+    logger, net = setup_network(hps)
     run(net, logger, hps)
