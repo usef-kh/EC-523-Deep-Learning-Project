@@ -18,7 +18,7 @@ hps = {
 }
 
 possible_nets = {
-    'ensemble',
+    'ensemble', 'vgg',
     'sub1_tuned', 'sub1_basic',
     'sub2_tuned', 'sub2_basic',
     'sub3_tuned', 'sub3_basic'

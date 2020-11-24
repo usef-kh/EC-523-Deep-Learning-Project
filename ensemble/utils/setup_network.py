@@ -1,6 +1,6 @@
 import torch
 
-from models import basic_subnets, tuned_subnets, ensemble
+from models import basic_subnets, tuned_subnets, ensemble, vgg
 from utils.checkpoint import load_features, restore
 from utils.logger import Logger
 
@@ -11,7 +11,8 @@ nets = {
     'sub1_tuned': tuned_subnets.Subnet1,
     'sub2_tuned': tuned_subnets.Subnet2,
     'sub3_tuned': tuned_subnets.Subnet3,
-    'ensemble': ensemble.Ensemble
+    'ensemble': ensemble.Ensemble,
+    'vgg': vgg.Vgg
 }
 
 
