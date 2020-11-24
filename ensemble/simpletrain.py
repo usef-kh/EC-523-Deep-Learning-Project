@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from torch import optim
 
-from data.ckplus import get_dataloaders
+from data.fer2013 import get_dataloaders
 from utils.checkpoint import save
 from utils.hparams import setup_hparams
 from utils.setup_network import setup_network
@@ -87,7 +87,7 @@ def run(net, logger, hps):
         logger.acc_val.append(acc_v)
 
         if (epoch + 1) % 20 == 0:
-            save(net, logger, hps, epoch)
+            save(net, logger, hps, epoch + 1)
             logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
@@ -127,7 +127,7 @@ def run(net, logger, hps):
 
 if __name__ == "__main__":
     # Important parameters
-    hps = setup_hparams(sys.argv[1:] + ['simple=True'])
+    hps = setup_hparams(sys.argv[1:])
 
     logger, net = setup_network(hps)
     run(net, logger, hps)

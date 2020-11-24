@@ -72,7 +72,7 @@ def run(net, logger, hps):
     # Create dataloaders
     print('start loading data')
     dataset = AudioData()
-    # print(dataset.data_paths)
+    print(dataset.data_paths)
     trainloader, valloader, testloader = dataset.get_dataloaders()
     net = net.to(device)
     # learning_rate = float(hps['lr'])

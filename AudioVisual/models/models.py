@@ -57,7 +57,7 @@ class CNN_2D(nn.Module):
         self.drop = nn.Dropout(p=0.5)
 
     def forward(self, x):
-        x = self.drop(x)
+#        x = self.drop(x)
         # print(x.shape)
         x = F.elu(self.conv1(x))
         # print(x.shape)
@@ -73,6 +73,7 @@ class CNN_2D(nn.Module):
         # print(x.shape)
         x = x.view(-1, 512 * 2 * 4)
         # print(x.shape)
+        x = self.drop(x)
         x = F.elu(self.fc1(x))
         x = F.elu(self.fc2(x))
 

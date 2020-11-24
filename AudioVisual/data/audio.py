@@ -16,7 +16,7 @@ from models.models import CNN_2D
 
 class AudioData:
 
-    def __init__(self, audio_dir=r"..\datasets\enterface\wav"):
+    def __init__(self, audio_dir=r"/projectnb/ec523/ykh/project/datasets/enterface/wav"):
         possible_emotions = ['anger', 'disgust', 'fear', 'happiness', 'sadness', 'surprise']
         self.emotion_mapping = {emotion: i for i, emotion in enumerate(possible_emotions)}
 
