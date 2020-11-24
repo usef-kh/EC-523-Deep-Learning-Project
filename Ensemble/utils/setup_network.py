@@ -1,35 +1,34 @@
 import torch
 
-from ensemble.ensemble import Ensemble
-from subnets import basic, tuned
+from models.ensemble import Ensemble
+from models import basic_subnets, tuned_subnets
 from utils.checkpoint import load_features, restore
 from utils.logger import Logger
 
 nets = {
-    'sub1_basic': basic.Subnet1,
-    'sub2_basic': basic.Subnet2,
-    'sub3_basic': basic.Subnet3,
-    'sub1_tuned': tuned.Subnet1,
-    'sub2_tuned': tuned.Subnet2,
-    'sub3_tuned': tuned.Subnet3
+    'sub1_basic': basic_subnets.Subnet1,
+    'sub2_basic': basic_subnets.Subnet2,
+    'sub3_basic': basic_subnets.Subnet3,
+    'sub1_tuned': tuned_subnets.Subnet1,
+    'sub2_tuned': tuned_subnets.Subnet2,
+    'sub3_tuned': tuned_subnets.Subnet3,
+    'ensemble': Ensemble
 }
 
 
 def build_network(hps):
-    if hps['type'] == 'subnet':
-        if hps['name'] not in nets:
-            raise ValueError("Name possibilities are: " + ' '.join(nets.keys()))
-        net = nets[hps['name']]()
+    if hps['network'] != 'ensemble':
+        net = nets[hps['network']]()
 
     else:
         if hps['subnet_type'] == 'tuned':
-            sub1 = tuned.Subnet1Features()
-            sub2 = tuned.Subnet2Features()
-            sub3 = tuned.Subnet3Features()
+            sub1 = tuned_subnets.Subnet1Features()
+            sub2 = tuned_subnets.Subnet2Features()
+            sub3 = tuned_subnets.Subnet3Features()
         else:
-            sub1 = basic.Subnet1Features()
-            sub2 = basic.Subnet2Features()
-            sub3 = basic.Subnet3Features()
+            sub1 = basic_subnets.Subnet1Features()
+            sub2 = basic_subnets.Subnet2Features()
+            sub3 = basic_subnets.Subnet3Features()
 
         try:
             sub1_params = torch.load(hps['sub1_path'])['params']
@@ -44,9 +43,10 @@ def build_network(hps):
             print("Ensemble Build Failure")
             raise RuntimeError(e)
 
-        net = Ensemble(sub1, sub2, sub3)
+        net = nets[hps['network']](sub1, sub2, sub3)
 
-    # Prepare network
+
+    # Prepare logger
     logger = Logger()
     if hps['restore_epoch']:
         restore(net, logger, hps)

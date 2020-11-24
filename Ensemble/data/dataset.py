@@ -1,7 +1,8 @@
+import numpy as np
 import torch
 from PIL import Image
-import numpy as np
 from torch.utils.data import Dataset
+
 
 class CustomDataset(Dataset):
     def __init__(self, images, labels, transform=None):

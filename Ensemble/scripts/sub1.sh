@@ -15,4 +15,4 @@ export PYTHONPATH=/projectnb/ykh/project/Ensemble/:$PYTHONPATH
 
 cd ..
 
-python train.py type=subnet name=sub1_tuned
+python train.py type=subnet name=sub1_basic

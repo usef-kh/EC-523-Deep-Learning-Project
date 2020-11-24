@@ -4,19 +4,23 @@ import torch
 
 
 def save(net, logger, hps, epoch):
-
+    # Create the path the checkpint will be saved at using the epoch number
     path = os.path.join(hps['model_save_dir'], 'epoch_' + str(epoch))
 
+    # create a dictionary containing the logger info and model info that will be saved
     checkpoint = {
         'logs': logger.get_logs(),
         'params': net.state_dict()
     }
 
+    # save checkpoint
     torch.save(checkpoint, path)
 
 
 def restore(net, logger, hps):
-    path = os.path.join(hps['model_save_dir'], 'epoch_' + hps['restore_epoch'])
+    """ Load back the model and logger from a given checkpoint
+        epoch detailed in hps['restore_epoch'], if available"""
+    path = os.path.join(hps['model_save_dir'], 'epoch_' + str(hps['restore_epoch']))
 
     if os.path.exists(path):
         try:
@@ -37,6 +41,8 @@ def restore(net, logger, hps):
 
 
 def load_features(model, params):
+    """ Load params into all layers of 'model'
+        that are compatible, then freeze them"""
     model_dict = model.state_dict()
 
     imp_params = {k: v for k, v in params.items() if k in model_dict}

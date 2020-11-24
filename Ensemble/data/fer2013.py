@@ -29,14 +29,24 @@ def prepare_data(data):
     return image_array, image_label
 
 
-def get_dataloaders():
-    fer2013, emotion_mapping = load_data()
+def get_dataloaders(path='../datasets/fer2013/fer2013.csv'):
+    """ Prepare train, val, & test dataloaders
+        Augment training data using:
+            - cropping
+            - shifting (vertical/horizental)
+            - horizental flipping
+            - rotation
+
+        input: path to fer2013 csv file
+        output: (Dataloader, Dataloader, Dataloader) """
+
+    fer2013, emotion_mapping = load_data(path)
 
     xtrain, ytrain = prepare_data(fer2013[fer2013['Usage'] == 'Training'])
     xval, yval = prepare_data(fer2013[fer2013['Usage'] == 'PrivateTest'])
     xtest, ytest = prepare_data(fer2013[fer2013['Usage'] == 'PublicTest'])
 
-    mu, st = 0, 1
+    mu, st = 0, 255
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(48, scale=(0.8, 1.2)),
         transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5),
