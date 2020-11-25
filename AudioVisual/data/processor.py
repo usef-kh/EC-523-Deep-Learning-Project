@@ -61,7 +61,6 @@ def process_audio(path):
 def prepare_data(data):  # data type will be dictionary,  emotion:  path.
 
     frames, specs, labels = [], [], []
-    i = 0
     for e, paths in data.items():
         for avi_path, wav_path in paths:
             key_frames = process_video(avi_path)
@@ -78,11 +77,6 @@ def prepare_data(data):  # data type will be dictionary,  emotion:  path.
                 labels += [e] * len(key_frames)
             elif key_frames is None or specs is None:
                 raise RuntimeError('frames or spectrograms is broken')
-
-            i += 1
-
-            if i > 2:
-                break
 
     labels = np.array(labels)
 
@@ -242,6 +236,8 @@ video_dir = '../../datasets/enterface/original'
 audio_dir = '../../datasets/enterface/wav'
 trainloader, valloader, testloader = get_dataloaders(video_dir, audio_dir)
 
-for i, data in enumerate(trainloader):
-    for tensor in data:
-        print(tensor.shape)
+print("hi")
+
+# for i, data in enumerate(trainloader):
+#     for tensor in data:
+#         print(tensor.shape)
