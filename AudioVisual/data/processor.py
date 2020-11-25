@@ -23,12 +23,12 @@ def process_audio(path):
     chunk_len = int(2 * sr)  # do i ceil?
     n_chunks = int(np.ceil(n_samples / chunk_len))
 
-    print(path)
-    print('audio (sec)', n_samples / sr)
-    print("n_frames", n_samples)
-    print("sr", sr)
-    print("chunk_len", chunk_len)
-    print("n_chunks", n_chunks)
+    # print(path)
+    # print('audio (sec)', n_samples / sr)
+    # print("n_frames", n_samples)
+    # print("sr", sr)
+    # print("chunk_len", chunk_len)
+    # print("n_chunks", n_chunks)
 
     spectrograms = []
     for i in range(n_chunks):
@@ -70,6 +70,7 @@ def prepare_data(data, processor=None):  # data type will be dictionary,  emotio
     frames = []
     specs = []
     labels = []
+    i = 0
     for e, paths in data.items():
         for avi_path, wav_path in paths:
             key_frames = process_video(avi_path)
@@ -85,8 +86,6 @@ def prepare_data(data, processor=None):  # data type will be dictionary,  emotio
                     # print(specs.shape, spectrograms.shape)
                     frames = np.vstack((frames, key_frames))
                     specs = np.vstack((specs, spectrograms))
-                    print("frame dims", frames.shape)
-                    print("specs dims", specs.shape)
 
                 labels += [e] * len(key_frames)
             elif key_frames is None or specs is None:
@@ -94,16 +93,23 @@ def prepare_data(data, processor=None):  # data type will be dictionary,  emotio
                 print(specs is None)
                 raise RuntimeError('frame or spectrogram is broken')
 
+            i += 1
+
+            if i > 20:
+                break
+
     labels = np.array(labels)
+
+    print("frame dims", frames.shape)
+    print("specs dims", specs.shape)
+    print("label dims", labels.shape)
+
     return (frames, specs), labels
 
 
 def get_data_loaders(video_dir=None, audio_dir=None):
-    print("start prepare paths")
     train_paths, val_paths, test_paths = prepare_paths(video_dir, audio_dir)
-    print("start prepare data")
     xtrain, ytrain = prepare_data(train_paths)
-    print("finish train")
     xval, yval = prepare_data(val_paths)
     xtest, ytest = prepare_data(test_paths)
 
@@ -134,13 +140,6 @@ def process_video(path):
     chunk_len = int(2 * fps)
     n_chunks = int(np.ceil(n_frames / chunk_len))
     n_keyframes = chunk_len // 4
-
-    print(path)
-    print('video (sec)', n_frames / fps)
-    print("n_frames", n_frames)
-    print("fps", fps)
-    print("chunk_len", chunk_len)
-    print("n_chunks", n_chunks)
 
     def get_keyframes(chunk, shift=4, window_len=7, n_keyframes=12):
         keyframes = np.zeros((277, 277, n_keyframes))
@@ -199,6 +198,23 @@ def face_detection(frame):
     return resized_face
 
 
+def split(dataset):
+    train = collections.defaultdict(list)
+    test = collections.defaultdict(list)
+    val = collections.defaultdict(list)
+
+    for emotion, paths in dataset.items():
+        # 0.25 * 0.8 = 0.2
+        train_paths, test_paths = train_test_split(paths, test_size=0.2, random_state=1, shuffle=True)
+        train_paths, val_paths = train_test_split(train_paths, test_size=0.25, random_state=1, shuffle=True)
+
+        train[emotion].extend(train_paths)
+        val[emotion].extend(val_paths)
+        test[emotion].extend(test_paths)
+
+    return train, val, test
+
+
 def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../../datasets/enterface/wav'):
     paths = collections.defaultdict(list)
 
@@ -218,6 +234,7 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
             emotion_id = emotion_mapping[emotion]
             paths[emotion_id].extend(files)
 
+
     path_tuples = collections.defaultdict(list)
 
     for emotion, avi_paths in paths.items():
@@ -230,72 +247,9 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
     return split(path_tuples)
 
 
-def split(dataset):
-    train = collections.defaultdict(list)
-    test = collections.defaultdict(list)
-    val = collections.defaultdict(list)
-
-    for emotion, paths in dataset.items():
-        # 0.25 * 0.8 = 0.2
-        train_paths, test_paths = train_test_split(paths, test_size=0.2, random_state=1, shuffle=True)
-        train_paths, val_paths = train_test_split(train_paths, test_size=0.25, random_state=1, shuffle=True)
-
-        train[emotion].extend(train_paths)
-        val[emotion].extend(val_paths)
-        test[emotion].extend(test_paths)
-
-    return train, val, test
-
-
 video_dir = '../../datasets/enterface/original'
 audio_dir = '../../datasets/enterface/wav'
-get_data_loaders(video_dir, audio_dir)
+train, val, test = get_data_loaders(video_dir, audio_dir)
 
-#
-# # audio_path = r'..\..\datasets\enterface\wav\subject 15\fear\sentence 1\s15_fe_1.wav'
-# audio_dir = r'..\..\datasets\enterface\wav'
-# train, val, test = prepare_paths(audio_dir)
-#
-# spects, labels = prepare_data(train,process_audio)
-# print(spects.shape, labels.shape)
-
-#
-# for chunk in chunks:
-#     fig, axes = plt.subplots(3, 1)
-#     for feature, ax in zip(chunk, axes):
-#         ax.imshow(feature)
-# plt.show()
-
-
-#
-#
-# axes[0].imshow(spec)
-# axes[1].imshow(delta)
-# axes[2].imshow(double_delta)
-# # for ax, spec in zip(axes, specs):
-# #     print(spec.shape)
-# #     ax.imshow(spec)
-# plt.show()
-
-# video_path = r'..\..\datasets\enterface\original\subject 15\fear\sentence 1\s15_fe_1.avi'
-# key_frames = process_video(video_path)
-#
-# for frames in key_frames:
-#
-#     for frame in frames:
-#         plt.figure()
-#         plt.imshow(frame, cmap='gray')
-#         plt.show()
-#
-#         face = face_detection(frame)
-#
-#         plt.figure()
-#         plt.imshow(face, cmap='gray')
-#         plt.show()
-
-
-# base_dir = r"../../datasets/enterface/original"
-# train, val, test = prepare_paths(base_dir)
-#
-# frames, labels = prepare_data(train)
-# print(frames.shape,  labels.shape)
+for x_keyframes, x_specs, y in train:
+    print(x_keyframes.shape, x_specs.shape, y.shape)

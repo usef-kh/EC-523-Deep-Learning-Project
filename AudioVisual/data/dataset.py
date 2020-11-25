@@ -18,13 +18,15 @@ class CustomDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
+        x_keyframes, x_specs = self.X[idx]
+        x_keyframes = Image.fromarray(np.array(x_keyframes))
+        x_specs = Image.fromarray(np.array(x_specs))
 
-        # x = Image.fromarray(np.array(self.X[idx]))
-        x = self.X[idx]
         if self.transform:
-            x = self.transform(x)
+            x_keyframes = self.transform(x_keyframes)
+            x_specs = self.transform(x_specs)
 
         y = torch.tensor(self.Y[idx]).type(torch.long)
-        sample = (x, y)
+        sample = (x_keyframes, x_specs, y)
 
         return sample
