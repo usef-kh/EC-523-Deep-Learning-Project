@@ -172,28 +172,6 @@ def face_detection(frame):
     return resized_face
 
 
-def prepare_paths(base_dir):
-    paths = collections.defaultdict(list)
-
-    possible_emotions = ['anger', 'disgust', 'fear', 'happiness', 'sadness', 'surprise']
-    emotion_mapping = {emotion: i for i, emotion in enumerate(possible_emotions)}
-
-    for curr_dir, sub_dir, files in os.walk(base_dir):
-        if files:
-            emotion = os.path.split(os.path.split(curr_dir)[0])[-1]
-
-            # catch the exception in folder structure from subject 6
-            if emotion not in emotion_mapping:
-                emotion = os.path.split(curr_dir)[1]
-
-            files = [os.path.join(curr_dir, file) for file in files if file[-2:] != 'db']
-
-            emotion_id = emotion_mapping[emotion]
-            paths[emotion_id].extend(files)
-
-    return split(paths)
-
-
 def split(dataset):
     train = collections.defaultdict(list)
     test = collections.defaultdict(list)
@@ -209,6 +187,42 @@ def split(dataset):
         test[emotion].extend(test_paths)
 
     return train, val, test
+
+def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../../datasets/enterface/wav'):
+    paths = collections.defaultdict(list)
+
+    possible_emotions = ['anger', 'disgust', 'fear', 'happiness', 'sadness', 'surprise']
+    emotion_mapping = {emotion: i for i, emotion in enumerate(possible_emotions)}
+
+    for curr_dir, sub_dir, files in os.walk(video_dir):
+        if files:
+            emotion = os.path.split(os.path.split(curr_dir)[0])[-1]
+
+            # catch the exception in folder structure from subject 6
+            if emotion not in emotion_mapping:
+                emotion = os.path.split(curr_dir)[1]
+
+            files = [os.path.join(curr_dir, file) for file in files if file[-2:] != 'db']
+
+            emotion_id = emotion_mapping[emotion]
+            paths[emotion_id].extend(files)
+
+    path_tuples = collections.defaultdict(list)
+
+    for emotion, avi_paths in paths.items():
+        for avi_path in avi_paths:
+            wav_file = avi_path[len(video_dir) + 1:][:-3] + 'wav'
+            wav_path = os.path.join(audio_dir, wav_file)
+
+            path_tuples[emotion].append((wav_path, avi_path))
+
+    return split(path_tuples)
+tr, v, t = prepare_paths()
+
+for e, l in tr.items():
+    print(e, l)
+
+
 
 # audio_path = r'..\..\datasets\enterface\wav\subject 15\fear\sentence 1\s15_fe_1.wav'
 # chunks = process_audio(audio_path)
@@ -245,3 +259,19 @@ def split(dataset):
 #         plt.figure()
 #         plt.imshow(face, cmap='gray')
 #         plt.show()
+
+# import torch
+# from torch.utils.data import DataLoader
+#
+# n = 1000
+# bs = 32
+# X = torch.rand(n, 1, 8192)
+# Y = torch.randint(0, 2, (1, n))
+# samples = []
+# for x, y in zip(X, Y):
+#     samples.append((x, y))
+# print(Y)#[0].item())
+# train_loader = DataLoader(samples, batch_size=bs, shuffle=True)
+
+# for sample in train_loader:
+#     print(sample)
