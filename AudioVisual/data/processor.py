@@ -185,25 +185,6 @@ def face_detection(frame):
     return resized_face
 
 
-<<<<<<< HEAD
-def split(dataset):
-    train = collections.defaultdict(list)
-    test = collections.defaultdict(list)
-    val = collections.defaultdict(list)
-
-    for emotion, paths in dataset.items():
-        # 0.25 * 0.8 = 0.2
-        train_paths, test_paths = train_test_split(paths, test_size=0.2, random_state=1, shuffle=True)
-        train_paths, val_paths = train_test_split(train_paths, test_size=0.25, random_state=1, shuffle=True)
-
-        train[emotion].extend(train_paths)
-        val[emotion].extend(val_paths)
-        test[emotion].extend(test_paths)
-
-    return train, val, test
-
-=======
->>>>>>> aaf0f25a27fbbdbb95982d0bd51b77474cacef7a
 def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../../datasets/enterface/wav'):
     paths = collections.defaultdict(list)
 
@@ -224,8 +205,6 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
             paths[emotion_id].extend(files)
 
     path_tuples = collections.defaultdict(list)
-<<<<<<< HEAD
-=======
 
     for emotion, avi_paths in paths.items():
         for avi_path in avi_paths:
@@ -235,22 +214,23 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
             path_tuples[emotion].append((avi_path, wav_path))
 
     return split(path_tuples)
->>>>>>> aaf0f25a27fbbdbb95982d0bd51b77474cacef7a
-
-    for emotion, avi_paths in paths.items():
-        for avi_path in avi_paths:
-            wav_file = avi_path[len(video_dir) + 1:][:-3] + 'wav'
-            wav_path = os.path.join(audio_dir, wav_file)
-
-            path_tuples[emotion].append((wav_path, avi_path))
-
-    return split(path_tuples)
-tr, v, t = prepare_paths()
-
-for e, l in tr.items():
-    print(e, l)
 
 
+def split(dataset):
+    train = collections.defaultdict(list)
+    test = collections.defaultdict(list)
+    val = collections.defaultdict(list)
+
+    for emotion, paths in dataset.items():
+        # 0.25 * 0.8 = 0.2
+        train_paths, test_paths = train_test_split(paths, test_size=0.2, random_state=1, shuffle=True)
+        train_paths, val_paths = train_test_split(train_paths, test_size=0.25, random_state=1, shuffle=True)
+
+        train[emotion].extend(train_paths)
+        val[emotion].extend(val_paths)
+        test[emotion].extend(test_paths)
+
+    return train, val, test
 
 
 video_dir = '../../datasets/enterface/original'
@@ -299,27 +279,9 @@ get_data_loaders(video_dir, audio_dir)
 #         plt.imshow(face, cmap='gray')
 #         plt.show()
 
-<<<<<<< HEAD
-# import torch
-# from torch.utils.data import DataLoader
-#
-# n = 1000
-# bs = 32
-# X = torch.rand(n, 1, 8192)
-# Y = torch.randint(0, 2, (1, n))
-# samples = []
-# for x, y in zip(X, Y):
-#     samples.append((x, y))
-# print(Y)#[0].item())
-# train_loader = DataLoader(samples, batch_size=bs, shuffle=True)
-
-# for sample in train_loader:
-#     print(sample)
-=======
 
 # base_dir = r"../../datasets/enterface/original"
 # train, val, test = prepare_paths(base_dir)
 #
 # frames, labels = prepare_data(train)
 # print(frames.shape,  labels.shape)
->>>>>>> aaf0f25a27fbbdbb95982d0bd51b77474cacef7a
