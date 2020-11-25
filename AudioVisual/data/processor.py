@@ -54,10 +54,10 @@ def process_video(path):
     chunk_len = int(np.ceil(2.02 * fps))
     # n_chunks = int(np.ceil(n_frames / chunk_len))
     # print(n_frames, chunk_len)
-    n_chunks = int(n_frames // chunk_len)
+    n_chunks = int(n_frames / chunk_len)
     n_keyframes = chunk_len // 4
 
-    if n_frames/fps > 7:
+    if n_frames//fps > 7 or n_frames/fps < 0:
         return
 
     def get_keyframes(chunk, shift=4, window_len=7):
