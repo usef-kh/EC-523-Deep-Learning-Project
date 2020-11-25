@@ -10,9 +10,9 @@ import torchvision.transforms as transforms
 from librosa.feature import melspectrogram
 from scipy.stats import chisquare
 from sklearn.model_selection import train_test_split
-from torch.utils.data import DataLoader
 
-#from data.dataset import CustomDataset
+
+# from data.dataset import CustomDataset
 
 
 def split(dataset):
@@ -30,7 +30,6 @@ def split(dataset):
         test[emotion].extend(test_paths)
 
     return train, val, test
-
 
 def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../../datasets/enterface/wav'):
     paths = collections.defaultdict(list)
@@ -62,7 +61,6 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
 
     return split(path_tuples)
 
-
 def face_detection(frame):
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     faces = face_cascade.detectMultiScale(frame, 1.1, 4)
@@ -76,55 +74,62 @@ def face_detection(frame):
 
     return resized_face
 
+def get_keyframes(chunk, shift=4, window_len=7):
+    n_keyframes = len(chunk) // 4
+
+    keyframes = np.zeros((n_keyframes, 277, 277))
+    for i in range(n_keyframes):
+        window = chunk[i * shift: (i * shift + window_len)]
+        chi = []
+        for w in window:
+            hist = cv2.calcHist(w, [0], None, [256], [0, 256])
+            chi.append(chisquare(hist))
+        # get the minimum chi values, and retrive the idex of that value, which is the key frame index.
+        idx = chi.index(min(chi))
+        keyframe = window[idx]
+
+        # do face detection and resize to 277 277
+        keyframe = face_detection(keyframe)
+
+        keyframes[i, :, :] = keyframe
+
+    return keyframes
 
 def process_video(path):
     video = cv2.VideoCapture(path)
 
     # Constants
-    frame_shape = (576, 720)
+    n_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
     fps = int(video.get(cv2.CAP_PROP_FPS))
-    n_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
-    # if n_frames / fps > 7:
-    #     return
+    width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    frame_shape = (height, width)
     chunk_len = int(2 * fps)
     n_chunks = int(np.ceil(n_frames / chunk_len))
     n_keyframes = chunk_len // 4
 
-    def get_keyframes(chunk, shift=4, window_len=7, n_keyframes=12):
-        keyframes = np.zeros((n_keyframes, 277, 277))
-        for i in range(n_keyframes):
-            window = chunk[i * shift: (i * shift + window_len)]
-            chi = []
-            for w in window:
-                hist = cv2.calcHist(w, [0], None, [256], [0, 256])
-                chi.append(chisquare(hist))
-            # get the minimum chi values, and retrive the idex of that value, which is the key frame index.
-            idx = chi.index(min(chi))
-            keyframe = window[idx]
+    if n_frames / fps > 7:
+        return
 
-            # do face detection and resize to 277 277
-            keyframe = face_detection(keyframe)
-
-            keyframes[i, :, :] = keyframe
-
-        return keyframes
-
-    check = True
+    # Load video into respective chunks
     chunks = np.zeros((n_chunks, chunk_len, *frame_shape), dtype=np.uint8)
+
     i = 0
+    check = True
     while check and i < n_chunks:
 
         for j in range(chunk_len):
             check, frame = video.read()
             if check:
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                # gray = get_keyframes(gray)
                 chunks[i][j] = gray
             else:
                 break
 
         i += 1
 
+    # Retreive keyframes and resize them
     chunk_keys = np.zeros((n_chunks, n_keyframes, 277, 277), dtype=np.uint8)
     for i, chunk in enumerate(chunks):
         frames = get_keyframes(chunk)
@@ -132,13 +137,13 @@ def process_video(path):
 
     return chunk_keys
 
-
 def process_audio(path):
     y, sr = librosa.load(path, sr=None)
+
     # get the total length of input audio
     n_samples = len(y)
-    # if n_samples / sr > 7:
-    #     return
+    if n_samples / sr > 7:
+        return
     chunk_len = int(2 * sr)  # do i ceil?
     n_chunks = int(np.ceil(n_samples / chunk_len))
 
@@ -176,7 +181,6 @@ def process_audio(path):
 
     return features
 
-
 def get_subject_id(path):
     i = path.find("subject ") + 8
 
@@ -187,18 +191,16 @@ def get_subject_id(path):
 
     return idx
 
-
 def prepare_gender():
     gender_mapping = {'m': 0, 'f': 1}
 
     gender = {}
-    with open("/projectnb/ec523/ykh/project/datasets/gender.txt") as txtfile:
+    with open("../../datasets/enterface/gender.txt") as txtfile:
         for line in txtfile:
             (subject_id, subject_gender) = line.split()
             gender[subject_id] = gender_mapping[subject_gender]
 
     return gender
-
 
 def prepare_data(data):  # data type will be dictionary,  emotion:  path.
 
@@ -206,14 +208,19 @@ def prepare_data(data):  # data type will be dictionary,  emotion:  path.
     frames, specs, gender, labels = [], [], [], []
     for emotion_id, paths in data.items():
         for avi_path, wav_path in paths:
+
             key_frames = process_video(avi_path)
             spectrograms = process_audio(wav_path)
-            if key_frames is not None and specs is not None:
+
+            assert (key_frames is None) == (spectrograms is None), "Processors must accept/reject the same paths"
+
+            if key_frames is not None and spectrograms is not None:
                 if frames == []:
                     frames = key_frames
                     specs = spectrograms
                 else:
-                    assert len(key_frames) == len(spectrograms)
+
+                    assert len(key_frames) == len(spectrograms), "Processors must create the same number of samples"
                     frames = np.vstack((frames, key_frames))
                     specs = np.vstack((specs, spectrograms))
 
@@ -222,11 +229,6 @@ def prepare_data(data):  # data type will be dictionary,  emotion:  path.
 
                 labels += [emotion_id] * len(key_frames)
                 gender += [gender_id] * len(key_frames)
-
-
-
-            elif key_frames is None or specs is None:
-                raise RuntimeError('frames or spectrograms is broken')
 
     labels = np.array(labels)
     gender = np.array(gender)
@@ -237,7 +239,6 @@ def prepare_data(data):  # data type will be dictionary,  emotion:  path.
     print("gender dims", gender.shape)
 
     return (frames, specs), (gender, labels)
-
 
 def get_dataloaders(video_dir=None, audio_dir=None):
     train_paths, val_paths, test_paths = prepare_paths(video_dir, audio_dir)
@@ -250,19 +251,19 @@ def get_dataloaders(video_dir=None, audio_dir=None):
         transforms.ToTensor(),
     ])
 
-    #train = CustomDataset(xtrain, ytrain, transform)
-    #val = CustomDataset(xval, yval, transform)
-    #test = CustomDataset(xtest, ytest, transform)
+    # train = CustomDataset(xtrain, ytrain, transform)
+    # val = CustomDataset(xval, yval, transform)
+    # test = CustomDataset(xtest, ytest, transform)
 
-    #trainloader = DataLoader(train, batch_size=1, shuffle=True)  # , num_workers=2)
-    #valloader = DataLoader(val, batch_size=1, shuffle=True)  # , num_workers=2)
-    #testloader = DataLoader(test, batch_size=1, shuffle=True)  # , num_workers=2)
+    # trainloader = DataLoader(train, batch_size=1, shuffle=True)  # , num_workers=2)
+    # valloader = DataLoader(val, batch_size=1, shuffle=True)  # , num_workers=2)
+    # testloader = DataLoader(test, batch_size=1, shuffle=True)  # , num_workers=2)
 
-    #return trainloader, valloader, testloader
+    # return trainloader, valloader, testloader
 
 
-video_dir = '/projectnb/ec523/ykh/project/datasets/enterface/original'
-audio_dir = '/projectnb/ec523/ykh/project/datasets/enterface/wav'
+video_dir = '../../datasets/enterface/original'
+audio_dir = '../../datasets/enterface/wav'
 train_paths, val_paths, test_paths = prepare_paths(video_dir, audio_dir)
 
 print("Train")
