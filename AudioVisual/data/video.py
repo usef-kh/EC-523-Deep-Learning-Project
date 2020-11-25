@@ -5,28 +5,23 @@ from torch.utils.data import DataLoader
 from data.dataset import CustomDataset
 from data.processor import process_video, prepare_paths
 
+def prepare_data(data):  # data type will be dictionary,  emotion:  path.
 
-def prepare_data(data_paths):
-    X_arr, Y_arr = [], []
-
-    for emotion, paths in data_paths.items():
+    frames = []
+    labels = []
+    n = 0
+    for e, paths in data.items():
         for path in paths:
-            # print(path)
-            x = process_video(path)
-            if x is not None:
-                X_arr.append(x)
-                Y_arr.append(emotion)
+            key_frames = process_video(path)
+            if frames == []:
+                frames = key_frames
+            else:
+                frames = np.vstack((frames, key_frames))
 
-    X = np.zeros((len(X_arr), 84, 277, 277))
-    Y = np.zeros(len(X_arr), )
+            labels += [e] * len(key_frames)
 
-    i = 0
-    for x, y in zip(X_arr, Y_arr):
-        X[i] = x
-        Y[i] = y
-        i += 1
-
-    return X, Y
+    labels = np.array(labels)
+    return frames, labels
 
 
 def get_dataloaders(base_dir=r"..\datasets\enterface\original"):
