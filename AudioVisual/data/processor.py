@@ -5,12 +5,12 @@ import cv2
 import librosa
 import librosa.display
 import numpy as np
+import torchvision.transforms as transforms
 from librosa.feature import melspectrogram
 from scipy.stats import chisquare
 from sklearn.model_selection import train_test_split
-from matplotlib import pyplot as plt
-import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
+
 from data.dataset import CustomDataset
 
 
@@ -20,8 +20,16 @@ def process_audio(path):
     n_samples = len(y)
     # if n_samples / sr > 7:
     #     return
-    chunk_len = int(np.ceil(2.02 * sr))  # do i ceil?
+    chunk_len = int(2 * sr)  # do i ceil?
     n_chunks = int(np.ceil(n_samples / chunk_len))
+
+    print(path)
+    print('audio (sec)', n_samples / sr)
+    print("n_frames", n_samples)
+    print("sr", sr)
+    print("chunk_len", chunk_len)
+    print("n_chunks", n_chunks)
+
     spectrograms = []
     for i in range(n_chunks):
         chunk = np.zeros((chunk_len,))
@@ -40,7 +48,7 @@ def process_audio(path):
         if spectrograms == []:
             spectrograms = spec
         else:
-            #print(spec.shape, spectrograms.shape)
+            # print(spec.shape, spectrograms.shape)
             spectrograms = np.vstack((spectrograms, spec))
     if spectrograms == []:
         return
@@ -74,7 +82,7 @@ def prepare_data(data, processor=None):  # data type will be dictionary,  emotio
                     if len(key_frames) != len(spectrograms):
                         print(wav_path, avi_path)
                         continue
-                    #print(specs.shape, spectrograms.shape)
+                    # print(specs.shape, spectrograms.shape)
                     frames = np.vstack((frames, key_frames))
                     specs = np.vstack((specs, spectrograms))
                     print("frame dims", frames.shape)
@@ -123,10 +131,16 @@ def process_video(path):
     n_frames = video.get(cv2.CAP_PROP_FRAME_COUNT)
     # if n_frames / fps > 7:
     #     return
-    chunk_len = int(np.ceil(2.02 * fps))
-    # n_chunks = int(np.ceil(n_frames / chunk_len))
+    chunk_len = int(2 * fps)
     n_chunks = int(np.ceil(n_frames / chunk_len))
     n_keyframes = chunk_len // 4
+
+    print(path)
+    print('video (sec)', n_frames / fps)
+    print("n_frames", n_frames)
+    print("fps", fps)
+    print("chunk_len", chunk_len)
+    print("n_chunks", n_chunks)
 
     def get_keyframes(chunk, shift=4, window_len=7, n_keyframes=12):
         keyframes = np.zeros((277, 277, n_keyframes))
