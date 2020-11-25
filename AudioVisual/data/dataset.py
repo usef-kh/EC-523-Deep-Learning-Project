@@ -1,6 +1,4 @@
-import numpy as np
 import torch
-from PIL import Image
 from torch.utils.data import Dataset
 
 
@@ -17,13 +15,16 @@ class CustomDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        x_keyframes, x_specs = self.X[idx]
-        x_keyframes = Image.fromarray(np.array(x_keyframes))
-        x_specs = Image.fromarray(np.array(x_specs))
+        x_keyframes, x_specs = self.X[0][idx], self.X[1][idx]
+        x_keyframes = torch.from_numpy(x_keyframes)
+        x_specs = torch.from_numpy(x_specs)
 
-        if self.transform:
-            x_keyframes = self.transform(x_keyframes)
-            x_specs = self.transform(x_specs)
+        # if self.transform:
+        #     x_specs = self.transform(x_specs)
+        #
+        #     n_frames = x_keyframes.shape[-1]
+        #     for i in range(n_frames):
+        #         x_frames
 
         y = torch.tensor(self.Y[idx]).type(torch.long)
         sample = (x_keyframes, x_specs, y)
