@@ -23,13 +23,6 @@ def process_audio(path):
     chunk_len = int(2 * sr)  # do i ceil?
     n_chunks = int(np.ceil(n_samples / chunk_len))
 
-    # print(path)
-    # print('audio (sec)', n_samples / sr)
-    # print("n_frames", n_samples)
-    # print("sr", sr)
-    # print("chunk_len", chunk_len)
-    # print("n_chunks", n_chunks)
-
     spectrograms = []
     for i in range(n_chunks):
         chunk = np.zeros((chunk_len,))
@@ -48,8 +41,8 @@ def process_audio(path):
         if spectrograms == []:
             spectrograms = spec
         else:
-            # print(spec.shape, spectrograms.shape)
             spectrograms = np.vstack((spectrograms, spec))
+
     if spectrograms == []:
         return
 
@@ -65,11 +58,9 @@ def process_audio(path):
     return features
 
 
-def prepare_data(data, processor=None):  # data type will be dictionary,  emotion:  path.
+def prepare_data(data):  # data type will be dictionary,  emotion:  path.
 
-    frames = []
-    specs = []
-    labels = []
+    frames, specs, labels = [], [], []
     i = 0
     for e, paths in data.items():
         for avi_path, wav_path in paths:
@@ -80,22 +71,17 @@ def prepare_data(data, processor=None):  # data type will be dictionary,  emotio
                     frames = key_frames
                     specs = spectrograms
                 else:
-                    if len(key_frames) != len(spectrograms):
-                        print(wav_path, avi_path)
-                        continue
-                    # print(specs.shape, spectrograms.shape)
+                    assert len(key_frames) == len(spectrograms)
                     frames = np.vstack((frames, key_frames))
                     specs = np.vstack((specs, spectrograms))
 
                 labels += [e] * len(key_frames)
             elif key_frames is None or specs is None:
-                print(key_frames is None)
-                print(specs is None)
-                raise RuntimeError('frame or spectrogram is broken')
+                raise RuntimeError('frames or spectrograms is broken')
 
             i += 1
 
-            if i > 20:
+            if i > 2:
                 break
 
     labels = np.array(labels)
@@ -107,23 +93,29 @@ def prepare_data(data, processor=None):  # data type will be dictionary,  emotio
     return (frames, specs), labels
 
 
-def get_data_loaders(video_dir=None, audio_dir=None):
+def get_dataloaders(video_dir=None, audio_dir=None):
     train_paths, val_paths, test_paths = prepare_paths(video_dir, audio_dir)
+
+    print("train")
     xtrain, ytrain = prepare_data(train_paths)
+    print("val")
     xval, yval = prepare_data(val_paths)
+    print("test")
     xtest, ytest = prepare_data(test_paths)
 
     transform = transforms.Compose([
         transforms.ToTensor(),
     ])
 
+    print("datasets")
     train = CustomDataset(xtrain, ytrain, transform)
     val = CustomDataset(xval, yval, transform)
     test = CustomDataset(xtest, ytest, transform)
 
-    trainloader = DataLoader(train, batch_size=32, shuffle=True, num_workers=2)
-    valloader = DataLoader(val, batch_size=32, shuffle=True, num_workers=2)
-    testloader = DataLoader(test, batch_size=32, shuffle=True, num_workers=2)
+    print("loaders")
+    trainloader = DataLoader(train, batch_size=2, shuffle=True, num_workers=2)
+    valloader = DataLoader(val, batch_size=2, shuffle=True, num_workers=2)
+    testloader = DataLoader(test, batch_size=2, shuffle=True, num_workers=2)
 
     return trainloader, valloader, testloader
 
@@ -234,7 +226,6 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
             emotion_id = emotion_mapping[emotion]
             paths[emotion_id].extend(files)
 
-
     path_tuples = collections.defaultdict(list)
 
     for emotion, avi_paths in paths.items():
@@ -249,7 +240,8 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
 
 video_dir = '../../datasets/enterface/original'
 audio_dir = '../../datasets/enterface/wav'
-train, val, test = get_data_loaders(video_dir, audio_dir)
+trainloader, valloader, testloader = get_dataloaders(video_dir, audio_dir)
 
-for x_keyframes, x_specs, y in train:
-    print(x_keyframes.shape, x_specs.shape, y.shape)
+for i, data in enumerate(trainloader):
+    for tensor in data:
+        print(tensor.shape)
