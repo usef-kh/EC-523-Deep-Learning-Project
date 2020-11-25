@@ -179,9 +179,9 @@ def process_audio(path):
 
 def get_subject_id(path):
     i = path.find("subject ") + 8
-    
+
     idx = ''
-    while path[i] != '/':
+    while path[i].isdigit():
         idx += path[i]
         i += 1
 
