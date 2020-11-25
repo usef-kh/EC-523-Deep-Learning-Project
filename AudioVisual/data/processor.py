@@ -12,7 +12,7 @@ from scipy.stats import chisquare
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
-from data.dataset import CustomDataset
+#from data.dataset import CustomDataset
 
 
 def split(dataset):
@@ -179,9 +179,9 @@ def process_audio(path):
 
 def get_subject_id(path):
     i = path.find("subject ") + 8
-
+    
     idx = ''
-    while path[i] != '\\':
+    while path[i] != '/':
         idx += path[i]
         i += 1
 
@@ -192,7 +192,7 @@ def prepare_gender():
     gender_mapping = {'m': 0, 'f': 1}
 
     gender = {}
-    with open("../../datasets/gender.txt") as txtfile:
+    with open("/projectnb/ec523/ykh/project/datasets/gender.txt") as txtfile:
         for line in txtfile:
             (subject_id, subject_gender) = line.split()
             gender[subject_id] = gender_mapping[subject_gender]
@@ -203,9 +203,6 @@ def prepare_gender():
 def prepare_data(data):  # data type will be dictionary,  emotion:  path.
 
     gender_mapping = prepare_gender()
-
-    i = 0
-
     frames, specs, gender, labels = [], [], [], []
     for emotion_id, paths in data.items():
         for avi_path, wav_path in paths:
@@ -231,13 +228,6 @@ def prepare_data(data):  # data type will be dictionary,  emotion:  path.
             elif key_frames is None or specs is None:
                 raise RuntimeError('frames or spectrograms is broken')
 
-            i += 1
-            if i > 2:
-                break
-
-        if i > 2:
-            break
-
     labels = np.array(labels)
     gender = np.array(gender)
 
@@ -260,19 +250,19 @@ def get_dataloaders(video_dir=None, audio_dir=None):
         transforms.ToTensor(),
     ])
 
-    train = CustomDataset(xtrain, ytrain, transform)
-    val = CustomDataset(xval, yval, transform)
-    test = CustomDataset(xtest, ytest, transform)
+    #train = CustomDataset(xtrain, ytrain, transform)
+    #val = CustomDataset(xval, yval, transform)
+    #test = CustomDataset(xtest, ytest, transform)
 
-    trainloader = DataLoader(train, batch_size=1, shuffle=True)  # , num_workers=2)
-    valloader = DataLoader(val, batch_size=1, shuffle=True)  # , num_workers=2)
-    testloader = DataLoader(test, batch_size=1, shuffle=True)  # , num_workers=2)
+    #trainloader = DataLoader(train, batch_size=1, shuffle=True)  # , num_workers=2)
+    #valloader = DataLoader(val, batch_size=1, shuffle=True)  # , num_workers=2)
+    #testloader = DataLoader(test, batch_size=1, shuffle=True)  # , num_workers=2)
 
-    return trainloader, valloader, testloader
+    #return trainloader, valloader, testloader
 
 
-video_dir = '../../datasets/enterface/original'
-audio_dir = '../../datasets/enterface/wav'
+video_dir = '/projectnb/ec523/ykh/project/datasets/enterface/original'
+audio_dir = '/projectnb/ec523/ykh/project/datasets/enterface/wav'
 train_paths, val_paths, test_paths = prepare_paths(video_dir, audio_dir)
 
 print("Train")
@@ -285,5 +275,5 @@ print("Test")
 xtest, ytest = prepare_data(test_paths)
 
 torch.save((xtrain, ytrain), 'train')
-torch.save((xval, yval), 'train')
+torch.save((xval, yval), 'val')
 torch.save((xtest, ytest), 'test')
