@@ -5,6 +5,7 @@ import cv2
 import librosa
 import librosa.display
 import numpy as np
+import torch
 import torchvision.transforms as transforms
 from librosa.feature import melspectrogram
 from scipy.stats import chisquare
@@ -176,10 +177,37 @@ def process_audio(path):
     return features
 
 
+def get_subject_id(path):
+    i = path.find("subject ") + 8
+
+    idx = ''
+    while path[i] != '\\':
+        idx += path[i]
+        i += 1
+
+    return idx
+
+
+def prepare_gender():
+    gender_mapping = {'m': 0, 'f': 1}
+
+    gender = {}
+    with open("../../datasets/gender.txt") as txtfile:
+        for line in txtfile:
+            (subject_id, subject_gender) = line.split()
+            gender[subject_id] = gender_mapping[subject_gender]
+
+    return gender
+
+
 def prepare_data(data):  # data type will be dictionary,  emotion:  path.
 
-    frames, specs, labels = [], [], []
-    for e, paths in data.items():
+    gender_mapping = prepare_gender()
+
+    i = 0
+
+    frames, specs, gender, labels = [], [], [], []
+    for emotion_id, paths in data.items():
         for avi_path, wav_path in paths:
             key_frames = process_video(avi_path)
             spectrograms = process_audio(wav_path)
@@ -192,19 +220,33 @@ def prepare_data(data):  # data type will be dictionary,  emotion:  path.
                     frames = np.vstack((frames, key_frames))
                     specs = np.vstack((specs, spectrograms))
 
-                labels += [e] * len(key_frames)
+                subject_id = get_subject_id(wav_path)  # or avi path, its the same
+                gender_id = gender_mapping[subject_id]
+
+                labels += [emotion_id] * len(key_frames)
+                gender += [gender_id] * len(key_frames)
+
+
+
             elif key_frames is None or specs is None:
                 raise RuntimeError('frames or spectrograms is broken')
 
+            i += 1
+            if i > 2:
+                break
 
+        if i > 2:
+            break
 
     labels = np.array(labels)
+    gender = np.array(gender)
 
     print("frame dims", frames.shape)
     print("specs dims", specs.shape)
     print("label dims", labels.shape)
+    print("gender dims", gender.shape)
 
-    return (frames, specs), labels
+    return (frames, specs), (gender, labels)
 
 
 def get_dataloaders(video_dir=None, audio_dir=None):
@@ -218,23 +260,30 @@ def get_dataloaders(video_dir=None, audio_dir=None):
         transforms.ToTensor(),
     ])
 
-    # print("datasets")
     train = CustomDataset(xtrain, ytrain, transform)
     val = CustomDataset(xval, yval, transform)
     test = CustomDataset(xtest, ytest, transform)
 
-    # print("loaders")
-    trainloader = DataLoader(train, batch_size=1, shuffle=True)#, num_workers=2)
-    valloader = DataLoader(val, batch_size=1, shuffle=True)#, num_workers=2)
-    testloader = DataLoader(test, batch_size=1, shuffle=True)#, num_workers=2)
+    trainloader = DataLoader(train, batch_size=1, shuffle=True)  # , num_workers=2)
+    valloader = DataLoader(val, batch_size=1, shuffle=True)  # , num_workers=2)
+    testloader = DataLoader(test, batch_size=1, shuffle=True)  # , num_workers=2)
 
     return trainloader, valloader, testloader
 
 
 video_dir = '../../datasets/enterface/original'
 audio_dir = '../../datasets/enterface/wav'
-trainloader, valloader, testloader = get_dataloaders(video_dir, audio_dir)
+train_paths, val_paths, test_paths = prepare_paths(video_dir, audio_dir)
 
-# for i, data in enumerate(trainloader):
-#     for tensor in data:
-#         print(tensor.shape)
+print("Train")
+xtrain, ytrain = prepare_data(train_paths)
+
+print("Val")
+xval, yval = prepare_data(val_paths)
+
+print("Test")
+xtest, ytest = prepare_data(test_paths)
+
+torch.save((xtrain, ytrain), 'train')
+torch.save((xval, yval), 'train')
+torch.save((xtest, ytest), 'test')
