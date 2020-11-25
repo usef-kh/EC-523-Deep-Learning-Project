@@ -8,10 +8,60 @@ from librosa.feature import melspectrogram
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from torch.utils.data import DataLoader
-from matplotlib import pyplot as plt
 from data.dataset import CustomDataset
 
-from models.models import CNN_2D
+
+def process_audio(path):
+    y, sr = librosa.load(path)
+
+    if len(y) > sr * 7:
+        return
+
+    arr = np.zeros((7 * sr,))
+    arr[:len(y)] = y
+
+    spectrogram = melspectrogram(
+        y=arr,
+        sr=sr,
+        win_length=int(sr / 1000) * 40,
+        hop_length=int(sr / 1000) * 20,
+        n_mels=25
+    )
+
+    return spectrogram
+    # sample =
+    # # n_samples = len(y)
+    # # chunk_len = int(2.02 * sr)  # do i ceil?
+    # # n_chunks = int(n_samples // chunk_len)
+    #
+    # spectrograms = []
+    # for i in range(n_chunks):
+    #     chunk = y[i * chunk_len: (i * chunk_len + chunk_len)]
+    #
+    #     spectrogram = melspectrogram(
+    #         y=chunk,
+    #         sr=sr,
+    #         win_length=int(sr / 1000) * 40,
+    #         hop_length=int(sr / 1000) * 20,
+    #         n_mels=25
+    #     )
+    #
+    #     spectrograms.append(spectrogram)
+    #
+    # if not spectrograms:
+    #     return
+    #
+    # samples = np.zeros((n_chunks, *spectrograms[0].shape, 3))
+    #
+    # for i, spec in enumerate(spectrograms):
+    #     spec_db = spec #librosa.power_to_db(spec, ref=np.max)
+    #     delta = librosa.feature.delta(spec_db, width=3)
+    #     double_delta = librosa.feature.delta(delta, width=3)
+    #
+    #     for j, feature in enumerate([spec_db, delta, double_delta]):
+    #         samples[i, :, :, j] = feature
+    #
+    # return samples
 
 
 class AudioData:
@@ -55,65 +105,13 @@ class AudioData:
 
         return train, val, test
 
-    def process_audio(self, path):
-        y, sr = librosa.load(path)
-
-        if len(y) > sr * 7:
-            return
-
-        arr = np.zeros((7 * sr,))
-        arr[:len(y)] = y
-
-        spectrogram = melspectrogram(
-            y=arr,
-            sr=sr,
-            win_length=int(sr / 1000) * 40,
-            hop_length=int(sr / 1000) * 20,
-            n_mels=25
-        )
-
-        return spectrogram
-        # sample =
-        # # n_samples = len(y)
-        # # chunk_len = int(2.02 * sr)  # do i ceil?
-        # # n_chunks = int(n_samples // chunk_len)
-        #
-        # spectrograms = []
-        # for i in range(n_chunks):
-        #     chunk = y[i * chunk_len: (i * chunk_len + chunk_len)]
-        #
-        #     spectrogram = melspectrogram(
-        #         y=chunk,
-        #         sr=sr,
-        #         win_length=int(sr / 1000) * 40,
-        #         hop_length=int(sr / 1000) * 20,
-        #         n_mels=25
-        #     )
-        #
-        #     spectrograms.append(spectrogram)
-        #
-        # if not spectrograms:
-        #     return
-        #
-        # samples = np.zeros((n_chunks, *spectrograms[0].shape, 3))
-        #
-        # for i, spec in enumerate(spectrograms):
-        #     spec_db = spec #librosa.power_to_db(spec, ref=np.max)
-        #     delta = librosa.feature.delta(spec_db, width=3)
-        #     double_delta = librosa.feature.delta(delta, width=3)
-        #
-        #     for j, feature in enumerate([spec_db, delta, double_delta]):
-        #         samples[i, :, :, j] = feature
-        #
-        # return samples
-
     def prepare_data(self, data):
         X_arr, Y_arr = [], []
 
         for emotion, paths in data.items():
 
             for path in paths:
-                samples = self.process_audio(path)
+                samples = process_audio(path)
 
                 if samples is not None:
                     X_arr.append(samples)

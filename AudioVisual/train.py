@@ -4,8 +4,9 @@ import warnings
 import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from models.models import CNN_2D
-from data.audio import AudioData
+from models.models import CNN_3D
+# from data.audio import AudioData
+from data.video import get_dataloaders
 # from utils.checkpoint import save
 # from utils.hparams import setup_hparams
 # from utils.setup_network import build_network
@@ -71,9 +72,8 @@ def evaluate(net, dataloader, criterion):
 def run(net, logger, hps):
     # Create dataloaders
     print('start loading data')
-    dataset = AudioData()
-    print(dataset.data_paths)
-    trainloader, valloader, testloader = dataset.get_dataloaders()
+
+    trainloader, valloader, testloader = get_dataloaders()
     net = net.to(device)
     # learning_rate = float(hps['lr'])
     learning_rate = 0.01
@@ -114,7 +114,7 @@ if __name__ == "__main__":
     # hps = setup_hparams(sys.argv[1:])
     # logger, net = build_network(hps)
 
-    net = CNN_2D()
+    net = CNN_3D()
     net = net.double()
     logger, hps = None, None
 
