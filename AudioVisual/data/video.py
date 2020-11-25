@@ -29,7 +29,7 @@ def prepare_data(data_paths):
     return X, Y
 
 
-def get_dataloaders(base_dir):
+def get_dataloaders(base_dir=r"..\datasets\enterface\original"):
     train_paths, val_paths, test_paths = prepare_paths(base_dir)
 
     xtrain, ytrain = prepare_data(train_paths)

@@ -161,7 +161,7 @@ def process_video_old(path):
 def face_detection(frame):
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     faces = face_cascade.detectMultiScale(frame, 1.1, 4)
-    if faces is not None:
+    if faces != []:
         x, y, w, h = faces[0]  # theres only 1 face in our images
         face = frame[y:y + h, x:x + w]  # Extract face from frame
     else:
