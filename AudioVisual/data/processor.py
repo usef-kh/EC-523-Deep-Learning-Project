@@ -89,18 +89,22 @@ def process_video(path):
 def process_audio(path):
     y, sr = librosa.load(path, sr=None)
 
-    # get the total length of input audio
+    # Constants
     n_samples = len(y)
-    if n_samples / sr > 7:
-        return
     chunk_len = int(2 * sr)  # do i ceil?
     n_chunks = int(np.ceil(n_samples / chunk_len))
 
+    if n_samples / sr > 7:
+        return
+
     spectrograms = []
     for i in range(n_chunks):
+
+        # initialize a zero array of chunk length and put whatever is possible, this is equivalent to zero padding
         chunk = np.zeros((chunk_len,))
         remaining_len = len(y[i * chunk_len: (i * chunk_len + chunk_len)])
         chunk[:remaining_len] = y[i * chunk_len: (i * chunk_len + chunk_len)]
+
         spec = melspectrogram(
             y=chunk,
             sr=sr,
@@ -108,6 +112,7 @@ def process_audio(path):
             hop_length=int(sr / 1000) * 20,
             n_mels=25
         )
+
         # expand one more dimension and stack vertically
         spec = np.expand_dims(spec, 0)
 
@@ -129,6 +134,3 @@ def process_audio(path):
             features[i, j, :, :] = feature
 
     return features
-
-
-

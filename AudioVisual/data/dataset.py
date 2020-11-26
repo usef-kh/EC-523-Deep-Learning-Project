@@ -6,10 +6,10 @@ class CustomDataset(Dataset):
     def __init__(self, X, Y):
         self.X = X
         self.Y = Y
-        # self.transform = transform
+        # self.transform = transform            (frames, specs), (gender, labels)
 
     def __len__(self):
-        return len(self.X)
+        return len(self.X[0])
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):

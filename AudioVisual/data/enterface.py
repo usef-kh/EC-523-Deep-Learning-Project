@@ -24,6 +24,7 @@ def prepare_gender():
 
 
 def get_subject_id(path):
+
     i = path.find("subject ") + 8
 
     idx = ''
@@ -59,6 +60,7 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
 
     for curr_dir, sub_dir, files in os.walk(video_dir):
         if files:
+            './../datasets/enterface/wav\subject 1\anger\garbage.wav'
             emotion = os.path.split(os.path.split(curr_dir)[0])[-1]
 
             # catch the exception in folder structure from subject 6
@@ -85,6 +87,7 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
 def prepare_data(data):  # dataold type will be dictionary,  emotion:  path.
 
     gender_mapping = prepare_gender()
+
     frames, specs, gender, labels = [], [], [], []
     for emotion_id, paths in data.items():
         for avi_path, wav_path in paths:
@@ -94,13 +97,14 @@ def prepare_data(data):  # dataold type will be dictionary,  emotion:  path.
 
             assert (key_frames is None) == (spectrograms is None), "Processors must accept/reject the same paths"
 
-            if key_frames is not None and spectrograms is not None:
+            if (key_frames is not None) and (spectrograms is not None):
                 if frames == []:
                     frames = key_frames
                     specs = spectrograms
                 else:
 
                     assert len(key_frames) == len(spectrograms), "Processors must create the same number of samples"
+
                     frames = np.vstack((frames, key_frames))
                     specs = np.vstack((specs, spectrograms))
 
@@ -121,7 +125,7 @@ def prepare_data(data):  # dataold type will be dictionary,  emotion:  path.
     return (frames, specs), (gender, labels)
 
 
-def get_dataloaders(data_dir=''):
+def get_dataloaders(data_dir='../datasets/enterface/processed'):
     xtrain, ytrain = torch.load(os.path.join(data_dir, 'train'))
     xval, yval = torch.load(os.path.join(data_dir, 'val'))
     xtest, ytest = torch.load(os.path.join(data_dir, 'test'))
