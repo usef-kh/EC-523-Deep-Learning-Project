@@ -99,7 +99,7 @@ class CNN_3D(nn.Module):
         self.max_pool = nn.MaxPool3d(kernel_size=(1, 2, 2), stride=2)
         self.avg_pool = nn.AvgPool3d(kernel_size=(1, 2, 2), stride=2)
 
-        self.fc1 = nn.Linear(295936, 4096)
+        self.fc1 = nn.Linear(512 * 1 * 8 * 8, 4096)
         self.fc2 = nn.Linear(4096, 4096)
         self.fc3 = nn.Linear(4096, 7)
 
@@ -124,7 +124,11 @@ class CNN_3D(nn.Module):
         x = F.elu(self.conv4b(x))
         x = self.avg_pool(x)
 
-        x = x.view(-1, 295936)
+        x = F.elu(self.conv5a(x))
+        x = F.elu(self.conv5b(x))
+        x = self.avg_pool(x)
+        # print(x.shape)
+        x = x.view(-1, 512 * 1 * 8 * 8)
         # print(x.shape)
         x = self.drop(x)
         # print(x.shape)

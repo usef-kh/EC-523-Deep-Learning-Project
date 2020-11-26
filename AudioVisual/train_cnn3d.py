@@ -26,6 +26,7 @@ def train(net, dataloader, criterion, optimizer):
 
         # forward + backward + optimize
         outputs = net(inputs)
+        print(outputs.shape, labels.shape)
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
