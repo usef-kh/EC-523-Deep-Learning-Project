@@ -1,7 +1,7 @@
 import collections
+import os
 
 import numpy as np
-import torch
 from sklearn.model_selection import train_test_split
 from torchvision.transforms import transforms
 
@@ -12,7 +12,7 @@ def prepare_gender():
     gender_mapping = {'m': 0, 'f': 1}
 
     gender = {}
-    with open("../../datasets/enterface/gender.txt") as txtfile:
+    with open("../datasets/enterface/gender.txt") as txtfile:
         for line in txtfile:
             (subject_id, subject_gender) = line.split()
             gender[subject_id] = gender_mapping[subject_gender]
@@ -79,7 +79,7 @@ def prepare_paths(video_dir='../../datasets/enterface/original', audio_dir='../.
     return split(path_tuples)
 
 
-def prepare_data(data):  # data type will be dictionary,  emotion:  path.
+def prepare_data(data):  # dataold type will be dictionary,  emotion:  path.
 
     gender_mapping = prepare_gender()
     frames, specs, gender, labels = [], [], [], []
@@ -138,21 +138,3 @@ def get_dataloaders(video_dir=None, audio_dir=None):
     # testloader = DataLoader(test, batch_size=1, shuffle=True)  # , num_workers=2)
 
     # return trainloader, valloader, testloader
-
-
-video_dir = '../../datasets/enterface/original'
-audio_dir = '../../datasets/enterface/wav'
-train_paths, val_paths, test_paths = prepare_paths(video_dir, audio_dir)
-
-print("Train")
-xtrain, ytrain = prepare_data(train_paths)
-
-print("Val")
-xval, yval = prepare_data(val_paths)
-
-print("Test")
-xtest, ytest = prepare_data(test_paths)
-
-torch.save((xtrain, ytrain), 'train')
-torch.save((xval, yval), 'val')
-torch.save((xtest, ytest), 'test')

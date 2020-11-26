@@ -1,11 +1,10 @@
-import sys
 import warnings
 
 import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from models.models import CNN_3D
-# from data.audio import AudioData
+# from dataold.audio import AudioData
 from data.processor import get_dataloaders
 # from utils.checkpoint import save
 # from utils.hparams import setup_hparams
@@ -71,7 +70,7 @@ def evaluate(net, dataloader, criterion):
 
 def run(net, logger, hps):
     # Create dataloaders
-    print('start loading data')
+    print('start loading dataold')
 
     trainloader, valloader, testloader = get_dataloaders()
     net = net.to(device)
