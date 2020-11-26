@@ -1,6 +1,6 @@
 import torch
 
-from data.data import prepare_paths, prepare_data
+from data.enterface import prepare_paths, prepare_data
 
 video_dir = '../datasets/enterface/original'
 audio_dir = '../datasets/enterface/wav'

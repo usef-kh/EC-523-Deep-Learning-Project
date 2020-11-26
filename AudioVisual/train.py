@@ -3,9 +3,9 @@ import warnings
 import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from models.models import CNN_3D
+from models.models import CNN_2D
 # from dataold.audio import AudioData
-from data.processor import get_dataloaders
+from data.enterface import get_dataloaders
 # from utils.checkpoint import save
 # from utils.hparams import setup_hparams
 # from utils.setup_network import build_network
@@ -18,8 +18,9 @@ def train(net, dataloader, criterion, optimizer):
     net = net.train()
     loss_tr, correct_count, n_samples = 0.0, 0.0, 0.0
     for i, data in enumerate(dataloader):
-        inputs, labels = data
-        inputs, labels = inputs.to(device), labels.to(device)
+
+        x_keyframes, x_specs, y_gender, y_emotion = data
+        inputs, labels = x_specs.to(device), y_emotion.to(device)
 
         # print(inputs.shape, labels.shape)
 
@@ -49,8 +50,8 @@ def evaluate(net, dataloader, criterion):
     net = net.eval()
     loss_tr, correct_count, n_samples = 0.0, 0.0, 0.0
     for data in dataloader:
-        inputs, labels = data
-        inputs, labels = inputs.to(device), labels.to(device)
+        x_keyframes, x_specs, y_gender, y_emotion = data
+        inputs, labels = x_specs.to(device), y_emotion.to(device)
 
         outputs = net(inputs)
         loss = criterion(outputs, labels)
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     # hps = setup_hparams(sys.argv[1:])
     # logger, net = build_network(hps)
 
-    net = CNN_3D()
+    net = CNN_2D()
     net = net.double()
     logger, hps = None, None
 

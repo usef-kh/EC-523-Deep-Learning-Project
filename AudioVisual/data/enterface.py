@@ -2,9 +2,12 @@ import collections
 import os
 
 import numpy as np
+import torch
 from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
 
+from data.dataset import CustomDataset
 from data.processor import process_video, process_audio
 
 
@@ -118,23 +121,17 @@ def prepare_data(data):  # dataold type will be dictionary,  emotion:  path.
     return (frames, specs), (gender, labels)
 
 
-def get_dataloaders(video_dir=None, audio_dir=None):
-    train_paths, val_paths, test_paths = prepare_paths(video_dir, audio_dir)
+def get_dataloaders(data_dir=''):
+    xtrain, ytrain = torch.load(os.path.join(data_dir, 'train'))
+    xval, yval = torch.load(os.path.join(data_dir, 'val'))
+    xtest, ytest = torch.load(os.path.join(data_dir, 'test'))
 
-    xtrain, ytrain = prepare_data(train_paths)
-    xval, yval = prepare_data(val_paths)
-    xtest, ytest = prepare_data(test_paths)
+    train = CustomDataset(xtrain, ytrain)
+    val = CustomDataset(xval, yval)
+    test = CustomDataset(xtest, ytest)
 
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-    ])
+    trainloader = DataLoader(train, batch_size=100, shuffle=True)  # , num_workers=2)
+    valloader = DataLoader(val, batch_size=100, shuffle=True)  # , num_workers=2)
+    testloader = DataLoader(test, batch_size=100, shuffle=True)  # , num_workers=2)
 
-    # train = CustomDataset(xtrain, ytrain, transform)
-    # val = CustomDataset(xval, yval, transform)
-    # test = CustomDataset(xtest, ytest, transform)
-
-    # trainloader = DataLoader(train, batch_size=1, shuffle=True)  # , num_workers=2)
-    # valloader = DataLoader(val, batch_size=1, shuffle=True)  # , num_workers=2)
-    # testloader = DataLoader(test, batch_size=1, shuffle=True)  # , num_workers=2)
-
-    # return trainloader, valloader, testloader
+    return trainloader, valloader, testloader
