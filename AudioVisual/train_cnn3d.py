@@ -13,7 +13,6 @@ from utils.setup_network import setup_network
 warnings.filterwarnings("ignore")
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
 def train(net, dataloader, criterion, optimizer):
     net = net.train()
     loss_tr, correct_count, n_samples = 0.0, 0.0, 0.0
@@ -26,11 +25,10 @@ def train(net, dataloader, criterion, optimizer):
 
         # forward + backward + optimize
         outputs = net(inputs)
-        print(outputs.shape, labels.shape)
         loss = criterion(outputs, labels)
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(net.parameters(), 0.5)
         optimizer.step()
-
         # calculate performance metrics
         loss_tr += loss.item()
 

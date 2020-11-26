@@ -90,16 +90,16 @@ class CNN_3D(nn.Module):
         self.conv3a = nn.Conv3d(128, 256, kernel_size=3, stride=1, padding=1)
         self.conv3b = nn.Conv3d(256, 256, kernel_size=3, stride=1, padding=1)
 
-        self.conv4a = nn.Conv3d(256, 512, kernel_size=3, stride=1, padding=1)
-        self.conv4b = nn.Conv3d(512, 512, kernel_size=3, stride=1, padding=1)
+        self.conv4a = nn.Conv3d(256, 256, kernel_size=3, stride=1, padding=1)
+        self.conv4b = nn.Conv3d(256, 256, kernel_size=3, stride=1, padding=1)
 
-        self.conv5a = nn.Conv3d(512, 512, kernel_size=3, stride=1, padding=1)
-        self.conv5b = nn.Conv3d(512, 512, kernel_size=3, stride=1, padding=1)
+        self.conv5a = nn.Conv3d(256, 256, kernel_size=3, stride=1, padding=1)
+        self.conv5b = nn.Conv3d(256, 256, kernel_size=3, stride=1, padding=1)
 
         self.max_pool = nn.MaxPool3d(kernel_size=(1, 2, 2), stride=2)
         self.avg_pool = nn.AvgPool3d(kernel_size=(1, 2, 2), stride=2)
 
-        self.fc1 = nn.Linear(512 * 1 * 8 * 8, 4096)
+        self.fc1 = nn.Linear(256 * 1 * 8 * 8, 4096)
         self.fc2 = nn.Linear(4096, 4096)
         self.fc3 = nn.Linear(4096, 7)
 
@@ -128,7 +128,7 @@ class CNN_3D(nn.Module):
         x = F.elu(self.conv5b(x))
         x = self.avg_pool(x)
         # print(x.shape)
-        x = x.view(-1, 512 * 1 * 8 * 8)
+        x = x.view(-1, 256 * 1 * 8 * 8)
         # print(x.shape)
         x = self.drop(x)
         # print(x.shape)

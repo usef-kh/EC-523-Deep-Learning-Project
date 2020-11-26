@@ -125,7 +125,7 @@ def prepare_data(data):  # dataold type will be dictionary,  emotion:  path.
     return (frames, specs), (gender, labels)
 
 
-def get_dataloaders(data_dir='../datasets/enterface/processed'):
+def get_dataloaders(data_dir='/projectnb/ec523/ykh/project/datasets/enterface/processed'):
     xtrain, ytrain = torch.load(os.path.join(data_dir, 'train'))
     xval, yval = torch.load(os.path.join(data_dir, 'val'))
     xtest, ytest = torch.load(os.path.join(data_dir, 'test'))
@@ -134,8 +134,8 @@ def get_dataloaders(data_dir='../datasets/enterface/processed'):
     val = CustomDataset(xval, yval)
     test = CustomDataset(xtest, ytest)
 
-    trainloader = DataLoader(train, batch_size=2, shuffle=True)  # , num_workers=2)
-    valloader = DataLoader(val, batch_size=2, shuffle=True)  # , num_workers=2)
-    testloader = DataLoader(test, batch_size=2, shuffle=True)  # , num_workers=2)
+    trainloader = DataLoader(train, batch_size=4, shuffle=True)  # , num_workers=2)
+    valloader = DataLoader(val, batch_size=4, shuffle=True)  # , num_workers=2)
+    testloader = DataLoader(test, batch_size=4, shuffle=True)  # , num_workers=2)
 
     return trainloader, valloader, testloader
