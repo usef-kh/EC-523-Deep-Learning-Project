@@ -134,8 +134,8 @@ def get_dataloaders(data_dir='../datasets/enterface/processed'):
     val = CustomDataset(xval, yval)
     test = CustomDataset(xtest, ytest)
 
-    trainloader = DataLoader(train, batch_size=100, shuffle=True)  # , num_workers=2)
-    valloader = DataLoader(val, batch_size=100, shuffle=True)  # , num_workers=2)
-    testloader = DataLoader(test, batch_size=100, shuffle=True)  # , num_workers=2)
+    trainloader = DataLoader(train, batch_size=2, shuffle=True)  # , num_workers=2)
+    valloader = DataLoader(val, batch_size=2, shuffle=True)  # , num_workers=2)
+    testloader = DataLoader(test, batch_size=2, shuffle=True)  # , num_workers=2)
 
     return trainloader, valloader, testloader

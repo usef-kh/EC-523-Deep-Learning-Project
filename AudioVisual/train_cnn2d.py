@@ -1,14 +1,14 @@
+import sys
 import warnings
 
 import torch
 import torch.nn as nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from models.models import CNN_2D
-# from dataold.audio import AudioData
+
 from data.enterface import get_dataloaders
-# from utils.checkpoint import save
-# from utils.hparams import setup_hparams
-# from utils.setup_network import build_network
+from utils.checkpoint import save
+from utils.hparams import setup_hparams
+from utils.setup_network import setup_network
 
 warnings.filterwarnings("ignore")
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -18,11 +18,8 @@ def train(net, dataloader, criterion, optimizer):
     net = net.train()
     loss_tr, correct_count, n_samples = 0.0, 0.0, 0.0
     for i, data in enumerate(dataloader):
-
         x_keyframes, x_specs, y_gender, y_emotion = data
         inputs, labels = x_specs.to(device), y_emotion.to(device)
-
-        # print(inputs.shape, labels.shape)
 
         # zero the parameter gradients
         optimizer.zero_grad()
@@ -71,7 +68,7 @@ def evaluate(net, dataloader, criterion):
 
 def run(net, logger, hps):
     # Create dataloaders
-    print('start loading dataold')
+    print('start loading data')
 
     trainloader, valloader, testloader = get_dataloaders()
     net = net.to(device)
@@ -84,19 +81,19 @@ def run(net, logger, hps):
     print("Training", "on", device)
     for epoch in range(300):
         acc_tr, loss_tr = train(net, trainloader, criterion, optimizer)
-        # logger.loss_train.append(loss_tr)
-        # logger.acc_train.append(acc_tr)
+        logger.loss_train.append(loss_tr)
+        logger.acc_train.append(acc_tr)
 
         acc_v, loss_v = evaluate(net, valloader, criterion)
-        # logger.loss_val.append(loss_v)
-        # logger.acc_val.append(acc_v)
+        logger.loss_val.append(loss_v)
+        logger.acc_val.append(acc_v)
 
         # Update learning rate if plateau
         scheduler.step(acc_v)
 
-        # if (epoch + 1) % hps['save_freq'] == 0:
-            # save(net, logger, hps, epoch + 1)
-            # logger.save_plt(hps)
+        if (epoch + 1) % hps['save_freq'] == 0:
+            save(net, logger, hps, epoch + 1)
+            logger.save_plt(hps)
 
         print('Epoch %2d' % (epoch + 1),
               'Train Accuracy: %2.2f %%' % acc_tr,
@@ -111,11 +108,7 @@ def run(net, logger, hps):
 
 if __name__ == "__main__":
     # Important parameters
-    # hps = setup_hparams(sys.argv[1:])
-    # logger, net = build_network(hps)
-
-    net = CNN_2D()
-    net = net.double()
-    logger, hps = None, None
+    hps = setup_hparams(sys.argv[1:])
+    logger, net = setup_network(hps)
 
     run(net, logger, hps)

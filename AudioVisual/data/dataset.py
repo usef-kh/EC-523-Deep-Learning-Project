@@ -15,8 +15,8 @@ class CustomDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        x_keyframes = torch.from_numpy(self.X[0][idx])
-        x_specs = torch.from_numpy(self.X[1][idx])
+        x_keyframes = torch.from_numpy(self.X[0][idx]).type(torch.float)
+        x_specs = torch.from_numpy(self.X[1][idx]).type(torch.float)
 
         # if self.transform:
         #     x_specs = self.transform(x_specs)

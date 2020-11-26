@@ -1,6 +1,3 @@
-import numpy as np
-
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -58,7 +55,6 @@ class CNN_2D(nn.Module):
         self.drop = nn.Dropout(p=0.5)
 
     def forward(self, x):
-
         # print(x.shape)
         x = F.elu(self.conv1(x))
         # print(x.shape)
@@ -87,46 +83,54 @@ class CNN_3D(nn.Module):
 
     def __init__(self):
         super().__init__()
-        self.conv1a = nn.Conv3d(3, 64, kernel_size=3, stride=1)
+        self.conv1a = nn.Conv3d(1, 64, kernel_size=3, stride=1, padding=1)
 
-        self.conv2a = nn.Conv2d(64, 128, kernel_size=3, stride=1)
+        self.conv2a = nn.Conv3d(64, 128, kernel_size=3, stride=1, padding=1)
 
-        self.conv3a = nn.Conv2d(128, 256, kernel_size=3, stride=1)
-        self.conv3b = nn.Conv2d(256, 256, kernel_size=3, stride=1)
+        self.conv3a = nn.Conv3d(128, 256, kernel_size=3, stride=1, padding=1)
+        self.conv3b = nn.Conv3d(256, 256, kernel_size=3, stride=1, padding=1)
 
-        self.conv4a = nn.Conv2d(256, 512, kernel_size=3, stride=1)
-        self.conv4b = nn.Conv2d(512, 512, kernel_size=3, stride=1)
+        self.conv4a = nn.Conv3d(256, 512, kernel_size=3, stride=1, padding=1)
+        self.conv4b = nn.Conv3d(512, 512, kernel_size=3, stride=1, padding=1)
 
-        self.conv5a = nn.Conv2d(512, 512, kernel_size=3, stride=1)
-        self.conv5b = nn.Conv2d(512, 512, kernel_size=3, stride=1)
+        self.conv5a = nn.Conv3d(512, 512, kernel_size=3, stride=1, padding=1)
+        self.conv5b = nn.Conv3d(512, 512, kernel_size=3, stride=1, padding=1)
 
         self.max_pool = nn.MaxPool3d(kernel_size=(1, 2, 2), stride=2)
-        self.avg_pool = nn.AvgPool2d(kernel_size=2, stride=2)
+        self.avg_pool = nn.AvgPool3d(kernel_size=(1, 2, 2), stride=2)
 
-        self.fc1 = nn.Linear(100, 4096)
+        self.fc1 = nn.Linear(295936, 4096)
         self.fc2 = nn.Linear(4096, 4096)
         self.fc3 = nn.Linear(4096, 7)
 
         self.drop = nn.Dropout(p=0.5)
 
     def forward(self, x):
-        x = self.drop(x)
-
-        x = F.elu(self.conv1(x))
+        # print(x.shape)
+        x = x.unsqueeze(1)
+        # print(x.shape)
+        x = F.elu(self.conv1a(x))
         x = self.max_pool(x)
+        # print(x.shape)
 
-        x = F.elu(self.conv2(x))
+        x = F.elu(self.conv2a(x))
+        x = self.avg_pool(x)
+        # print(x.shape)
+        x = F.elu(self.conv3a(x))
+        x = F.elu(self.conv3b(x))
+        x = self.avg_pool(x)
+        # print(x.shape)
+        x = F.elu(self.conv4a(x))
+        x = F.elu(self.conv4b(x))
         x = self.avg_pool(x)
 
-        x = F.elu(self.conv3(x))
-        x = self.avg_pool(x)
-
-        x = F.elu(self.conv4(x))
-        x = x.view(-1, 100)
-
+        x = x.view(-1, 295936)
+        # print(x.shape)
+        x = self.drop(x)
+        # print(x.shape)
         x = F.elu(self.fc1(x))
         x = F.elu(self.fc2(x))
-
+        # print(x.shape)
         x = F.elu(self.fc3(x))
-
+        # print(x.shape)
         return x
