@@ -4,16 +4,16 @@ import warnings
 import torch
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
-from torch.utils.data import Dataset
 
+from data.dataset import CustomDataset
 from models.CNNs import CNN_2DFeatures, CNN_3DFeatures
 from models.ELM import ELM
 from models.pseudoInverse import pseudoInverse
-from data.dataset import CustomDataset
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 warnings.filterwarnings("ignore")
 device = "cpu"
+
 
 def load_features(model, params):
     """ Load params into all layers of 'model'
@@ -43,7 +43,6 @@ def train_ELM(model, optimizer, train_loader):
 
         data, target = Variable(data, requires_grad=False, volatile=True), Variable(target, requires_grad=False,
                                                                                     volatile=True)
-
 
         hiddenOut = model.forwardToHidden(data)
         optimizer.train(inputs=hiddenOut, targets=target)
@@ -79,7 +78,6 @@ def test(model, test_loader):
 
 
 def passThroughCNNs(keyframes, specs):
-
     x_vid = cnn3d(keyframes)
     x_aud = cnn2d(specs)
     x = torch.cat((x_aud, x_vid), dim=1)
@@ -116,7 +114,6 @@ trainloader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 valloader = DataLoader(val_dataset, batch_size=32, shuffle=True)
 testloader = DataLoader(test_dataset, batch_size=32, shuffle=True)
 
-
 # ELM
 print("Initializing ELM")
 num_classes = 2
@@ -126,8 +123,8 @@ hidden_size = 100
 model = ELM(input_size, hidden_size, num_classes, device=device).to(device)
 optimizer = pseudoInverse(model.parameters(), C=0.001, L=0)
 
-# print("Training ELM")
-# train_ELM(model, optimizer, trainloader)
+print("Training ELM")
+train_ELM(model, optimizer, trainloader)
 
 print("Evaluating Model")
 print("Train")
@@ -140,4 +137,3 @@ print("Test")
 test(model, testloader)
 
 torch.save(model, 'ELM')
-
