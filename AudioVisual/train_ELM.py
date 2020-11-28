@@ -11,8 +11,8 @@ from models.ELM import ELM
 from models.pseudoInverse import pseudoInverse
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-warnings.filterwarnings("ignore")
 device = "cpu"
+warnings.filterwarnings("ignore")
 
 
 def load_features(model, params):
@@ -39,7 +39,7 @@ def train_ELM(model, optimizer, train_loader):
 
         data = passThroughCNNs(x_keyframes, x_specs)
 
-        data, target = data.to(device), y_emotion.to(device)
+        data, target = data.to(device), y_gender.to(device)
 
         data, target = Variable(data, requires_grad=False, volatile=True), Variable(target, requires_grad=False,
                                                                                     volatile=True)
@@ -65,7 +65,7 @@ def test(model, test_loader):
 
         data = passThroughCNNs(x_keyframes, x_specs)
 
-        data, target = data.to(device), y_emotion.to(device)
+        data, target = data.to(device), y_gender.to(device)
         data, target = Variable(data, requires_grad=False, volatile=True), Variable(target, requires_grad=False,
                                                                                     volatile=True)
 
@@ -87,20 +87,20 @@ def passThroughCNNs(keyframes, specs):
 
 # Building CNNs
 print("Building 2D CNN")
-cnn2d_path = "cnn2d"
+cnn2d_path = r"/projectnb/ec523/ykh/project/AudioVisual/checkpoints/cnn2d/epoch_300"
 cnn2d_params = torch.load(cnn2d_path)['params']
-cnn2d = CNN_2DFeatures().to(device)
+cnn2d = CNN_2DFeatures()
 load_features(cnn2d, cnn2d_params)
 
 print("Building 3D CNN")
-cnn3d_path = "cnn3d"
+cnn3d_path = r"/projectnb/ec523/ykh/project/AudioVisual/checkpoints/cnn3d/epoch_300"
 cnn3d_params = torch.load(cnn3d_path)['params']
-cnn3d = CNN_3DFeatures().to(device)
+cnn3d = CNN_3DFeatures()
 load_features(cnn2d, cnn2d_params)
 
 # Building dataset
 print("Loading Dataset")
-data_dir = r'C:\Users\Yousef\Desktop\Uni\BU\EC 523 Deep Learning\project\datasets\enterface\processed\cleaner'
+data_dir = r"/projectnb/ec523/ykh/project/datasets/enterface/processed"
 xtrain, ytrain = torch.load(os.path.join(data_dir, 'train'))
 xval, yval = torch.load(os.path.join(data_dir, 'val'))
 xtest, ytest = torch.load(os.path.join(data_dir, 'test'))
