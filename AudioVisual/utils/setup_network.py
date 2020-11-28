@@ -1,10 +1,10 @@
-from models import models
+from models import CNNs
 from utils.checkpoint import restore
 from utils.logger import Logger
 
 nets = {
-    'cnn2d': models.CNN_2D,
-    'cnn3d': models.CNN_3D,
+    'cnn2d': CNNs.CNN_2D,
+    'cnn3d': CNNs.CNN_3D,
 }
 
 
