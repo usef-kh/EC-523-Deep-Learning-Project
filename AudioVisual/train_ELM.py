@@ -10,8 +10,8 @@ from models.CNNs import CNN_2DFeatures, CNN_3DFeatures
 from models.ELM import ELM
 from models.pseudoInverse import pseudoInverse
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = "cpu"
+#cpu = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+cpu = gpu = "cpu"
 warnings.filterwarnings("ignore")
 
 
@@ -39,7 +39,7 @@ def train_ELM(model, optimizer, train_loader):
 
         data = passThroughCNNs(x_keyframes, x_specs)
 
-        data, target = data.to(device), y_gender.to(device)
+        data, target = data.to(gpu), y_gender.to(gpu)
 
         data, target = Variable(data, requires_grad=False, volatile=True), Variable(target, requires_grad=False,
                                                                                     volatile=True)
@@ -60,27 +60,31 @@ def train_ELM(model, optimizer, train_loader):
 def test(model, test_loader):
     model.train()
     correct = 0
-    for sample in test_loader:
+    for batch_idx, sample in enumerate(test_loader):
         x_keyframes, x_specs, y_gender, y_emotion = sample
 
         data = passThroughCNNs(x_keyframes, x_specs)
 
-        data, target = data.to(device), y_gender.to(device)
+        data, target = data.to(gpu), y_gender.to(gpu)
         data, target = Variable(data, requires_grad=False, volatile=True), Variable(target, requires_grad=False,
                                                                                     volatile=True)
 
         output = model.forward(data)
         pred = output.data.max(1)[1]
-        correct += pred.eq(target.data).cpu().sum()
+        temp = pred.eq(target.data).cpu().sum()
+        correct += temp
+
+        print(batch_idx, temp / len(data))
+
     print('Accuracy: {}/{} ({:.2f}%)\n'.format(
         correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
 
 def passThroughCNNs(keyframes, specs):
-    x_vid = cnn3d(keyframes)
-    x_aud = cnn2d(specs)
-    x = torch.cat((x_aud, x_vid), dim=1)
+    x_vid = cnn3d(keyframes.to(cpu))
+    x_aud = cnn2d(specs.to(gpu))
+    x = torch.cat((x_aud.to(cpu), x_vid), dim=1)
 
     return x
 
@@ -89,13 +93,13 @@ def passThroughCNNs(keyframes, specs):
 print("Building 2D CNN")
 cnn2d_path = r"/projectnb/ec523/ykh/project/AudioVisual/checkpoints/cnn2d/epoch_300"
 cnn2d_params = torch.load(cnn2d_path)['params']
-cnn2d = CNN_2DFeatures()
+cnn2d = CNN_2DFeatures().to(gpu)
 load_features(cnn2d, cnn2d_params)
 
 print("Building 3D CNN")
 cnn3d_path = r"/projectnb/ec523/ykh/project/AudioVisual/checkpoints/cnn3d/epoch_300"
 cnn3d_params = torch.load(cnn3d_path)['params']
-cnn3d = CNN_3DFeatures()
+cnn3d = CNN_3DFeatures().to(cpu)
 load_features(cnn2d, cnn2d_params)
 
 # Building dataset
@@ -120,20 +124,21 @@ num_classes = 2
 input_size = 8192
 hidden_size = 100
 
-model = ELM(input_size, hidden_size, num_classes, device=device).to(device)
-optimizer = pseudoInverse(model.parameters(), C=0.001, L=0)
+#model = ELM(input_size, hidden_size, num_classes, device=gpu).to(gpu)
+#optimizer = pseudoInverse(model.parameters(), C=0.001, L=0)
 
-print("Training ELM")
-train_ELM(model, optimizer, trainloader)
+#print("Training ELM")
+#train_ELM(model, optimizer, trainloader)
+
+model = torch.load("ELM")
+
+print("Saving Model")
+torch.save(model, 'ELM')
 
 print("Evaluating Model")
-print("Train")
-test(model, trainloader)
-
 print("Val")
 test(model, valloader)
 
 print("Test")
 test(model, testloader)
 
-torch.save(model, 'ELM')
