@@ -28,6 +28,7 @@ def train(net, dataloader, criterion, optimizer):
         outputs = net(inputs)
         loss = criterion(outputs, labels)
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(net.parameters(), 0.5)
         optimizer.step()
 
         # calculate performance metrics

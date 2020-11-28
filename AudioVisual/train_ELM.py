@@ -107,7 +107,8 @@ load_features(cnn2d, cnn2d_params)
 
 # Building Gender ELM
 print("Building Gender ELM")
-elm1_params = torch.load("elm1").state_dict()  # I accidentally saved the whole model rather than the state dict
+elm1_path = r"/projectnb/ec523/ykh/project/AudioVisual/checkpoints/ELM_Gender"
+elm1_params = torch.load(elm1_path).state_dict()  # I accidentally saved the whole model rather than the state dict
 elm1 = ELMFeatures(input_size=8192, hidden_size=100, num_classes=2, device=device).to(device)
 load_features(elm1, elm1_params)
 
