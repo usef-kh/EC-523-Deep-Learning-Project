@@ -125,7 +125,7 @@ def prepare_data(data):  # dataold type will be dictionary,  emotion:  path.
     return (frames, specs), (gender, labels)
 
 
-def get_dataloaders(data_dir='/projectnb/ec523/ykh/project/datasets/enterface/processed', bs=32):
+def get_dataloaders(data_dir=r'C:\Users\Yousef\Desktop\Uni\BU\EC 523 Deep Learning\project\datasets\enterface\processed\cleaner', bs=32):
     xtrain, ytrain = torch.load(os.path.join(data_dir, 'train'))
     xval, yval = torch.load(os.path.join(data_dir, 'val'))
     xtest, ytest = torch.load(os.path.join(data_dir, 'test'))

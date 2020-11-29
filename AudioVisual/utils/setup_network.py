@@ -1,14 +1,14 @@
 import torch
 
-from models import CNNs, ELM
+from models import CNNs, models
 from utils.checkpoint import restore, load_features
 from utils.logger import Logger
 
 nets = {
     'cnn2d': CNNs.CNN_2D,
     'cnn3d': CNNs.CNN_3D,
-    'elm1': ELM.ELM1,
-    'elm2': ELM.ELM2,
+    'elm1': models.GenderFeatureExtractor,
+    'elm2': models.FeatureExtractor,
 }
 
 
@@ -21,32 +21,29 @@ def setup_network(hps):
         cnn2d = CNNs.CNN_2DFeatures()
         cnn3d = CNNs.CNN_3DFeatures()
 
-        cnn2d_params = torch.load(hps['cnn2d_path'])['params']
-        cnn3d_params = torch.load(hps['cnn3d_path'])['params']
+        if hps['network'] == 'elm1':
+            cnn2d_params = torch.load(hps['cnn2d_path'])['params']
+            cnn3d_params = torch.load(hps['cnn3d_path'])['params']
 
-        load_features(cnn2d, cnn2d_params)
-        load_features(cnn3d, cnn3d_params)
+            load_features(cnn2d, cnn2d_params)
+            load_features(cnn3d, cnn3d_params)
 
-        if hps['network'] == 'elm2':
-            elm1 = ELM.ELM1Features(input_size=8192, hidden_size=100, num_classes=2)
-            elm1_params = torch.load(hps['elm1_path'])['params']
-            load_features(elm1, elm1_params)
+            net = models.GenderFeatureExtractor(2, cnn2d, cnn3d)
 
-            net = ELM.ELM2(input_size=100, hidden_size=100, num_classes=6, cnn2d=cnn2d, cnn3d=cnn3d, elm1=elm1)
+        elif hps['network'] == 'elm2':
+            gfe = models.GenderFeatureExtractor(2, cnn2d, cnn3d)
 
-        elif hps['network'] == 'elm1':
-            net = ELM.ELM1(input_size=8192, hidden_size=100, num_classes=2, cnn2d=cnn2d, cnn3d=cnn3d)
+            gfe_params = torch.load(hps['elm1_path'])['params']
+            load_features(gfe, gfe_params)
 
-        else:
-            elm1 = ELM.ELM1Features(input_size=8192, hidden_size=100, num_classes=2)
-            elm1_params = torch.load(hps['elm1_path'])['params']
-            load_features(elm1, elm1_params)
+            net = models.FeatureExtractor(6, gfe)
 
-            elm2 = ELM.ELM2Features(input_size=100, hidden_size=100, num_classes=6, cnn2d=cnn2d, cnn3d=cnn3d, elm1=elm1)
-            elm2_params = torch.load(hps['elm2_path'])['params']
-            load_features(elm2, elm2_params)
+        elif hps['network'] == 'svm':
+            gfe = models.GenderFeatureExtractor(2, cnn2d, cnn3d)
+            net = models.FeatureExtractor(6, gfe)
 
-            net = elm2
+            net_params = torch.load(hps['elm2_path'])['params']
+            load_features(net, net_params)
 
     # Prepare logger
     logger = Logger()

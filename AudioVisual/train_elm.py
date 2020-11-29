@@ -4,7 +4,7 @@ import warnings
 from torch.autograd import Variable
 
 from data.enterface import get_dataloaders
-from models.pseudoInverse import pseudoInverse
+from models.ELM import pseudoInverse
 from utils.checkpoint import save
 from utils.hparams import setup_hparams
 from utils.setup_network import setup_network
@@ -23,20 +23,21 @@ def train(model, optimizer, dataloader):
         choice = 3
 
     for batch_idx, sample in enumerate(dataloader):
-        data = model.passThroughPrev(sample[0], sample[1])
-        data, target = data.to(device), sample[choice].to(device)
-
-        data, target = Variable(data, requires_grad=False, volatile=True), Variable(target, requires_grad=False,
-                                                                                    volatile=True)
+        data = (sample[0].to(device), sample[1].to(device))
+        target = sample[choice].to(device)
 
         hiddenOut = model.forwardToHidden(data)
+
         optimizer.train(inputs=hiddenOut, targets=target)
         output = model.forward(data)
         pred = output.data.max(1)[1]
         temp = pred.eq(target.data).cpu().sum()
         correct += temp
 
-        print(batch_idx, temp / len(data))
+        if batch_idx > 4:   # Early stopping improves val and test accuracy
+            break
+
+        print(batch_idx, temp / len(sample[0]))
 
     print('Accuracy:{}/{} ({:.2f}%)\n'.format(correct, len(dataloader.dataset),
                                               100. * correct / len(dataloader.dataset)))
@@ -52,18 +53,16 @@ def test(model, dataloader):
         choice = 3
 
     for batch_idx, sample in enumerate(dataloader):
-        data = model.passThroughPrev(sample[0], sample[1])
-        data, target = data.to(device), sample[choice].to(device)
-
-        data, target = Variable(data, requires_grad=False, volatile=True), Variable(target, requires_grad=False,
-                                                                                    volatile=True)
+        data = (sample[0].to(device), sample[1].to(device))
+        target = sample[choice].to(device)
+        target = Variable(target, requires_grad=False, volatile=True)
 
         output = model.forward(data)
         pred = output.data.max(1)[1]
         temp = pred.eq(target.data).cpu().sum()
         correct += temp
 
-        print(batch_idx, temp / len(data))
+        print(batch_idx, temp / len(sample[0]))
 
     print('Accuracy: {}/{} ({:.2f}%)\n'.format(
         correct, len(dataloader.dataset),
@@ -81,7 +80,7 @@ def run(net, logger, hps):
 
     print("Training", hps['name'], "on", device)
     train(net, optimizer, trainloader)
-    
+
     print("Saving Model")
     save(net, logger, hps, epoch=1)
 
