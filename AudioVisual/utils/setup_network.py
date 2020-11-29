@@ -22,8 +22,8 @@ def setup_network(hps):
         cnn3d = CNNs.CNN_3DFeatures()
 
         if hps['network'] == 'elm1':
-            cnn2d_params = torch.load(hps['cnn2d_path'])['params']
-            cnn3d_params = torch.load(hps['cnn3d_path'])['params']
+            cnn2d_params = torch.load(hps['cnn2d_path'], map_location=torch.device('cpu'))['params']
+            cnn3d_params = torch.load(hps['cnn3d_path'], map_location=torch.device('cpu'))['params']
 
             load_features(cnn2d, cnn2d_params)
             load_features(cnn3d, cnn3d_params)
@@ -33,7 +33,7 @@ def setup_network(hps):
         elif hps['network'] == 'elm2':
             gfe = models.GenderFeatureExtractor(2, cnn2d, cnn3d)
 
-            gfe_params = torch.load(hps['elm1_path'])['params']
+            gfe_params = torch.load(hps['elm1_path'], map_location=torch.device('cpu'))['params']
             load_features(gfe, gfe_params)
 
             net = models.FeatureExtractor(6, gfe)
@@ -42,7 +42,7 @@ def setup_network(hps):
             gfe = models.GenderFeatureExtractor(2, cnn2d, cnn3d)
             net = models.FeatureExtractor(6, gfe)
 
-            net_params = torch.load(hps['elm2_path'])['params']
+            net_params = torch.load(hps['elm2_path'], map_location=torch.device('cpu'))['params']
             load_features(net, net_params)
 
     # Prepare logger

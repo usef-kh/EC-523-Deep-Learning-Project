@@ -10,7 +10,7 @@ class GenderFeatureExtractor(nn.Module):
         self.cnn2d = cnn2d
         self.cnn3d = cnn3d
 
-        self.elm = ELM(8196, 100, num_classes)
+        self.elm = ELM(8192, 100, num_classes)
 
     def forward(self, x):
         keyframes, specs = x
