@@ -1,7 +1,8 @@
+import torch
+
 from models import CNNs, ELM
 from utils.checkpoint import restore, load_features
 from utils.logger import Logger
-import torch
 
 nets = {
     'cnn2d': CNNs.CNN_2D,
@@ -34,7 +35,7 @@ def setup_network(hps):
             net = ELM.ELM2(input_size=100, hidden_size=100, num_classes=6, cnn2d=cnn2d, cnn3d=cnn3d, elm1=elm1)
 
         else:
-            net = ELM.ELM1(input_size=8192, hidden_size=100, num_classes=2,cnn2d=cnn2d, cnn3d=cnn3d)
+            net = ELM.ELM1(input_size=8192, hidden_size=100, num_classes=2, cnn2d=cnn2d, cnn3d=cnn3d)
 
     # Prepare logger
     logger = Logger()

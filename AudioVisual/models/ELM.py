@@ -47,7 +47,7 @@ class ELM2Features(nn.Module):
         super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
-        self.output_size = num_classes  # 2 for first ELM, 5 for second
+        self.output_size = num_classes  # 2 for first ELM, 6 for second
         self.cnn2d = cnn2d
         self.cnn3d = cnn3d
         self.elm1 = elm1
