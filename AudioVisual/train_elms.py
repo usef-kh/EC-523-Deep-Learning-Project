@@ -22,7 +22,6 @@ def train_ELM(model, optimizer, train_loader):
         x_keyframes, x_specs, y_gender, y_emotion = sample
 
         data = passThroughCNNs(x_keyframes, x_specs)  # CNNs
-
         data = elm1(data)  # Gender ELM
 
         data, target = data.to(device), y_emotion.to(device)

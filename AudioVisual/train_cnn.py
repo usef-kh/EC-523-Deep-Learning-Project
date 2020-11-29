@@ -13,12 +13,17 @@ from utils.setup_network import setup_network
 warnings.filterwarnings("ignore")
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+
 def train(net, dataloader, criterion, optimizer):
     net = net.train()
     loss_tr, correct_count, n_samples = 0.0, 0.0, 0.0
+    if hps['network'] == 'cnn2d':
+        choice = 1
+    else:
+        choice = 0
     for i, data in enumerate(dataloader):
-        x_keyframes, x_specs, y_gender, y_emotion = data
-        inputs, labels = x_keyframes.to(device), y_emotion.to(device)
+        # data is (x_keyframes, x_specs, y_gender, y_emotion)
+        inputs, labels = data[choice].to(device), data[3].to(device)
 
         # zero the parameter gradients
         optimizer.zero_grad()
@@ -29,6 +34,7 @@ def train(net, dataloader, criterion, optimizer):
         loss.backward()
         torch.nn.utils.clip_grad_norm_(net.parameters(), 0.5)
         optimizer.step()
+
         # calculate performance metrics
         loss_tr += loss.item()
 
@@ -45,9 +51,13 @@ def train(net, dataloader, criterion, optimizer):
 def evaluate(net, dataloader, criterion):
     net = net.eval()
     loss_tr, correct_count, n_samples = 0.0, 0.0, 0.0
-    for data in dataloader:
-        x_keyframes, x_specs, y_gender, y_emotion = data
-        inputs, labels = x_keyframes.to(device), y_emotion.to(device)
+    if hps['network'] == 'cnn2d':
+        choice = 1
+    else:
+        choice = 0
+    for i, data in enumerate(dataloader):
+        # data is (x_keyframes, x_specs, y_gender, y_emotion)
+        inputs, labels = data[choice].to(device), data[3].to(device)
 
         outputs = net(inputs)
         loss = criterion(outputs, labels)
@@ -71,13 +81,12 @@ def run(net, logger, hps):
 
     trainloader, valloader, testloader = get_dataloaders()
     net = net.to(device)
-    # learning_rate = float(hps['lr'])
-    learning_rate = 0.01
+    learning_rate = float(hps['lr'])
     optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, nesterov=True, weight_decay=0.0001)
     scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=10, verbose=True)
     criterion = nn.CrossEntropyLoss()
+    print("Training", hps['name'], "on", device)
 
-    print("Training", "on", device)
     for epoch in range(300):
         acc_tr, loss_tr = train(net, trainloader, criterion, optimizer)
         logger.loss_train.append(loss_tr)

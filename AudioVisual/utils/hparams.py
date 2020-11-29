@@ -1,7 +1,7 @@
 import os
 
 hps = {
-    'network': '',  # ensemble vs subnet
+    'network': '',  # choose 2D CNN or 3D CNN
     'name': '',  # network name
     'n_epochs': 300,
     'model_save_dir': None,  # where will checkpoints be stored (path created automatically using hps[name])
@@ -9,10 +9,20 @@ hps = {
     'start_epoch': 0,
     'lr': 0.01,  # starting learning rate
     'save_freq': 20,  # how often to create checkpoints
+
+
+    # the following parameters are only applicable if network = elm
+    'cnn2d_path': None,          # where to load sub1 features
+    'cnn3d_path': None,          # where to load sub2 features
+    'elm1_path': None,          # where to load sub3 features
+
+
+
+
 }
 
 possible_nets = {
-    'cnn2d', 'cnn3d'
+    'cnn2d', 'cnn3d', 'elm1', 'elm2'
 }
 
 
@@ -34,6 +44,7 @@ def setup_hparams(args):
         hps['start_epoch'] = int(hps['start_epoch'])
         hps['save_freq'] = int(hps['save_freq'])
         hps['lr'] = float(hps['lr'])
+
 
         if hps['restore_epoch']:
             hps['restore_epoch'] = int(hps['restore_epoch'])
