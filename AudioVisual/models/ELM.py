@@ -3,7 +3,7 @@ import torch.nn as nn
 
 
 class ELM1Features(nn.Module):
-    def __init__(self, input_size, hidden_size, num_classes, cnn2d, cnn3d):
+    def __init__(self, input_size, hidden_size, num_classes, cnn2d=None, cnn3d=None):
         super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
@@ -43,7 +43,7 @@ class ELM1(ELM1Features):
 
 
 class ELM2Features(nn.Module):
-    def __init__(self, input_size, hidden_size, num_classes, cnn2d, cnn3d, elm1):
+    def __init__(self, input_size, hidden_size, num_classes, cnn2d=None, cnn3d=None, elm1=None):
         super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size

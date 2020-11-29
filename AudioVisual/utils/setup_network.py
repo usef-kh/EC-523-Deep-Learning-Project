@@ -28,14 +28,25 @@ def setup_network(hps):
         load_features(cnn3d, cnn3d_params)
 
         if hps['network'] == 'elm2':
-            elm1 = ELM.ELM1Features()
+            elm1 = ELM.ELM1Features(input_size=8192, hidden_size=100, num_classes=2)
             elm1_params = torch.load(hps['elm1_path'])['params']
             load_features(elm1, elm1_params)
 
             net = ELM.ELM2(input_size=100, hidden_size=100, num_classes=6, cnn2d=cnn2d, cnn3d=cnn3d, elm1=elm1)
 
-        else:
+        elif hps['network'] == 'elm1':
             net = ELM.ELM1(input_size=8192, hidden_size=100, num_classes=2, cnn2d=cnn2d, cnn3d=cnn3d)
+
+        else:
+            elm1 = ELM.ELM1Features(input_size=8192, hidden_size=100, num_classes=2)
+            elm1_params = torch.load(hps['elm1_path'])['params']
+            load_features(elm1, elm1_params)
+
+            elm2 = ELM.ELM2Features(input_size=100, hidden_size=100, num_classes=6, cnn2d=cnn2d, cnn3d=cnn3d, elm1=elm1)
+            elm2_params = torch.load(hps['elm2_path'])['params']
+            load_features(elm2, elm2_params)
+
+            net = elm2
 
     # Prepare logger
     logger = Logger()

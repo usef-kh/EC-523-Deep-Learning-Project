@@ -10,19 +10,16 @@ hps = {
     'lr': 0.01,  # starting learning rate
     'save_freq': 20,  # how often to create checkpoints
 
-
-    # the following parameters are only applicable if network = elm
-    'cnn2d_path': None,          # where to load sub1 features
-    'cnn3d_path': None,          # where to load sub2 features
-    'elm1_path': None,          # where to load sub3 features
-
-
-
+    # the following parameters are only applicable if network=elm/svm
+    'cnn2d_path': None,  # where to load cnn2d features
+    'cnn3d_path': None,  # where to load cnn3d features
+    'elm1_path': None,  # where to load elm1 features
+    'elm2_path': None,  # where to load elm2 features
 
 }
 
 possible_nets = {
-    'cnn2d', 'cnn3d', 'elm1', 'elm2'
+    'cnn2d', 'cnn3d', 'elm1', 'elm2', 'svm'
 }
 
 
@@ -45,7 +42,6 @@ def setup_hparams(args):
         hps['save_freq'] = int(hps['save_freq'])
         hps['lr'] = float(hps['lr'])
 
-
         if hps['restore_epoch']:
             hps['restore_epoch'] = int(hps['restore_epoch'])
             hps['start_epoch'] = int(hps['restore_epoch'])
@@ -62,6 +58,5 @@ def setup_hparams(args):
 
     if not os.path.exists(hps['model_save_dir']):
         os.makedirs(hps['model_save_dir'])
-
 
     return hps
