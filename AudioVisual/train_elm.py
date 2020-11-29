@@ -80,12 +80,13 @@ def run(net, logger, hps):
     optimizer = pseudoInverse(net.parameters(), C=0.001, L=0)
 
     print("Training", hps['name'], "on", device)
-    train(net, trainloader, optimizer)
+    train(net, optimizer, trainloader)
+    
+    print("Saving Model")
+    save(net, logger, hps, epoch=1)
 
     print("Evaluating", hps['name'])
     test(net, valloader)
-
-    save(net, logger, hps, epoch=1)
 
 
 if __name__ == "__main__":
