@@ -8,6 +8,12 @@ from scipy.stats import chisquare
 
 
 def face_detection(frame):
+    """
+    use open cv to perform face detection on a given frame and resize to (277, 277)
+    if dont find a face, resize the frame only
+    :param frame: frame
+    :return: resized face
+    """
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     faces = face_cascade.detectMultiScale(frame, 1.1, 4)
     if len(faces) > 0:
@@ -22,16 +28,26 @@ def face_detection(frame):
 
 
 def get_keyframes(chunk, shift=4, window_len=7):
+    """
+    scan the chunk and output the key frames in this chunk
+    :param chunk: the frames in a 2 second length video.
+    :param shift: window shift, defined by the paper, Hossain, M.S. and Muhammad, G., 2019. Emotion recognition using deep learning approach from audio–visual emotional big data. Information Fusion, 49, pp.69-78.
+    :param window_len:   size of the window for getting the key frames,
+    :return: key frames in this chunk (12, 277, 277)
+    """
     n_keyframes = len(chunk) // 4
 
     keyframes = np.zeros((n_keyframes, 277, 277))
     for i in range(n_keyframes):
+        # extract the ith window in the chunk.
         window = chunk[i * shift: (i * shift + window_len)]
         chi = []
         for w in window:
+            # get the pixel gray values distribution of the image
             hist = cv2.calcHist(w, [0], None, [256], [0, 256])
+            # calculate the chi square error of the gray values distribution
             chi.append(chisquare(hist))
-        # get the minimum chi values, and retrive the idex of that value, which is the key frame index.
+        # get the minimum chi values, and retrieve the index of that value, which is the key frame index.
         idx = chi.index(min(chi))
         keyframe = window[idx]
 
@@ -44,6 +60,11 @@ def get_keyframes(chunk, shift=4, window_len=7):
 
 
 def process_video(path):
+    """
+    load the video and split into chunks of 2 seconds and retrieve the key frames in each chunk
+    :param path: video path
+    :return: key frames in this video. [num_chunks, 12, 277, 277]
+    """
     video = cv2.VideoCapture(path)
 
     # Constants
@@ -64,12 +85,13 @@ def process_video(path):
     chunks = np.zeros((n_chunks, chunk_len, *frame_shape), dtype=np.uint8)
 
     i = 0
-    check = True
+    check = True # frame is read correctly
     while check and i < n_chunks:
 
         for j in range(chunk_len):
             check, frame = video.read()
             if check:
+                # convert to gray scale and put all the images into chunks, 4 D array
                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 chunks[i][j] = gray
             else:
@@ -77,7 +99,7 @@ def process_video(path):
 
         i += 1
 
-    # Retreive keyframes and resize them
+    # Retrieve keyframes and resize them
     chunk_keys = np.zeros((n_chunks, n_keyframes, 277, 277), dtype=np.uint8)
     for i, chunk in enumerate(chunks):
         frames = get_keyframes(chunk)
@@ -87,6 +109,11 @@ def process_video(path):
 
 
 def process_audio(path):
+    """
+    load the audio and split into chunks of 2 seconds and retrieve the (spectrograms, delta, double_delta) in each chunk
+    :param path: audio path
+    :return: key frames in this video. [num_chunks, 3, 25, 101]
+    """
     y, sr = librosa.load(path, sr=None)
 
     # Constants
@@ -126,11 +153,11 @@ def process_audio(path):
 
     features = np.zeros((n_chunks, 3, *spectrograms[0].shape))
     for i, spec in enumerate(spectrograms):
-        spec_db = spec  # librosa.power_to_db(spec, ref=np.max)
-        delta = librosa.feature.delta(spec_db, width=3)
+
+        delta = librosa.feature.delta(spec, width=3)
         double_delta = librosa.feature.delta(delta, width=3)
 
-        for j, feature in enumerate([spec_db, delta, double_delta]):
+        for j, feature in enumerate([spec, delta, double_delta]):
             features[i, j, :, :] = feature
 
     return features
