@@ -35,7 +35,7 @@ def setup_hparams(args):
 
     # Invalid network check
     if hps['network'] not in possible_nets:
-        raise ValueError("Invalid network.\nPossible ones include:" + '\n - '.join(possible_nets))
+        raise ValueError("Invalid network.\nPossible ones include:\n - " + '\n - '.join(possible_nets))
 
     if hps['subnet_type'] not in {'tuned', 'basic'}:
         raise ValueError("Invalid subnet type.\nPossible ones include:" + '\n - tuned\n - basic')

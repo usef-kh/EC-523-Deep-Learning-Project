@@ -29,7 +29,7 @@ def prepare_data(data):
     return image_array, image_label
 
 
-def get_dataloaders(path='../datasets/fer2013/fer2013.csv'):
+def get_dataloaders(path='../datasets/fer2013/fer2013.csv', augment=True):
     """ Prepare train, val, & test dataloaders
         Augment training data using:
             - cropping
@@ -47,19 +47,22 @@ def get_dataloaders(path='../datasets/fer2013/fer2013.csv'):
     xtest, ytest = prepare_data(fer2013[fer2013['Usage'] == 'PublicTest'])
 
     mu, st = 0, 255
-    train_transform = transforms.Compose([
-        transforms.RandomResizedCrop(48, scale=(0.8, 1.2)),
-        transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomApply([transforms.RandomRotation(10)], p=0.5),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=(mu,), std=(st,))
-    ])
-
     test_transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean=(mu,), std=(st,))
     ])
+
+    if augment:
+        train_transform = transforms.Compose([
+            transforms.RandomResizedCrop(48, scale=(0.8, 1.2)),
+            transforms.RandomApply([transforms.RandomAffine(0, translate=(0.2, 0.2))], p=0.5),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomApply([transforms.RandomRotation(10)], p=0.5),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=(mu,), std=(st,))
+        ])
+    else:
+        train_transform = test_transform
 
     train = CustomDataset(xtrain, ytrain, train_transform)
     val = CustomDataset(xval, yval, test_transform)
