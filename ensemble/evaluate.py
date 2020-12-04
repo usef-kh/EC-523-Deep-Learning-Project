@@ -92,6 +92,6 @@ if __name__ == "__main__":
     print("Train")
     evaluate(net, trainloader, criterion)
     print("Val")
-    evaluate(net, trainloader, criterion)
+    evaluate(net, valloader, criterion)
     print("Test")
     evaluate(net, testloader, criterion)

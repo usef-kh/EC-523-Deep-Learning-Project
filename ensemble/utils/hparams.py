@@ -15,6 +15,7 @@ hps = {
     'sub1_path': None,          # where to load sub1 features
     'sub2_path': None,          # where to load sub2 features
     'sub3_path': None,          # where to load sub3 features
+    'vgg_path': None,           # where to load sub3 features
 }
 
 possible_nets = {
