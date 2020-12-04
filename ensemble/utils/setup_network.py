@@ -30,20 +30,24 @@ def setup_network(hps):
             sub2 = basic_subnets.Subnet2Features()
             sub3 = basic_subnets.Subnet3Features()
 
+        sub4 = vgg.VggFeatures()
+
         try:
             sub1_params = torch.load(hps['sub1_path'])['params']
             sub2_params = torch.load(hps['sub2_path'])['params']
             sub3_params = torch.load(hps['sub3_path'])['params']
+            sub4_params = torch.load(hps['vgg_path'])['params']
 
             load_features(sub1, sub1_params)
             load_features(sub2, sub2_params)
             load_features(sub3, sub3_params)
+            load_features(sub4, sub4_params)
 
         except Exception as e:
             print("Ensemble Build Failure")
             raise RuntimeError(e)
 
-        net = nets[hps['network']](sub1, sub2, sub3)
+        net = nets[hps['network']](sub1, sub2, sub3, sub4)
 
     # Prepare logger
     logger = Logger()
