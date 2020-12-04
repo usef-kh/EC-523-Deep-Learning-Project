@@ -1,6 +1,7 @@
 import sys
 import warnings
 
+import torch
 from torch.autograd import Variable
 
 from data.enterface import get_dataloaders
@@ -10,6 +11,8 @@ from utils.hparams import setup_hparams
 from utils.setup_network import setup_network
 
 device = "cpu"
+#device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 warnings.filterwarnings("ignore")
 
 
@@ -33,9 +36,6 @@ def train(model, optimizer, dataloader):
         pred = output.data.max(1)[1]
         temp = pred.eq(target.data).cpu().sum()
         correct += temp
-
-        if batch_idx > 4:   # Early stopping improves val and test accuracy
-            break
 
         print(batch_idx, temp / len(sample[0]))
 
@@ -73,7 +73,7 @@ def run(net, logger, hps):
     # Create dataloaders
     print('start loading data')
 
-    trainloader, valloader, testloader = get_dataloaders()
+    trainloader, valloader, testloader = get_dataloaders(bs=16)
     net = net.to(device)
 
     optimizer = pseudoInverse(net.parameters(), C=0.001, L=0)
@@ -92,5 +92,7 @@ if __name__ == "__main__":
     # Important parameters
     hps = setup_hparams(sys.argv[1:])
     logger, net = setup_network(hps)
+    for name, param in net.named_parameters():
+        print(name, param.shape)
 
     run(net, logger, hps)

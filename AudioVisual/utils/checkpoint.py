@@ -12,6 +12,10 @@ def save(net, logger, hps, epoch):
         'logs': logger.get_logs(),
         'params': net.state_dict()
     }
+    
+
+    for name, param in net.named_parameters():
+        print(name, param.shape)
 
     # save checkpoint
     torch.save(checkpoint, path)
@@ -46,7 +50,7 @@ def load_features(model, params):
     model_dict = model.state_dict()
 
     imp_params = {k: v for k, v in params.items() if k in model_dict}
-
+#    imp_params['elm.beta.weight'] = torch.zeros(2, 100)
     # Load layers
     model_dict.update(imp_params)
     model.load_state_dict(imp_params)

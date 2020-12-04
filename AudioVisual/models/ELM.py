@@ -25,7 +25,7 @@ class ELM(nn.Module):
 class pseudoInverse(object):
     def __init__(self, params, C=1e-2, forgettingfactor=1, L=100):
         self.params = list(params)
-        self.is_cuda = False  # self.params[len(self.params)-1].is_cuda
+        self.is_cuda = self.params[len(self.params)-1].is_cuda
         self.C = C
         self.L = L
         self.w = self.params[len(self.params) - 1]
@@ -86,6 +86,8 @@ class pseudoInverse(object):
         numSamples = inputs.size()[0]
         dimInput = inputs.size()[1]
         dimTarget = targets.size()[1]
+
+        print(self.w.shape)
 
         if numSamples > dimInput:
             self.pseudoBig(inputs, targets)
