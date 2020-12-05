@@ -89,9 +89,9 @@ if __name__ == "__main__":
     # Get data with no augmentation
     trainloader, valloader, testloader = get_dataloaders(augment=False)
 
-    print("Train")
-    evaluate(net, trainloader, criterion)
-    print("Val")
-    evaluate(net, valloader, criterion)
+    # print("Train")
+    # evaluate(net, trainloader, criterion)
+    # print("Val")
+    # evaluate(net, valloader, criterion)
     print("Test")
     evaluate(net, testloader, criterion)
