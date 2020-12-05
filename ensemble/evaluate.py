@@ -61,14 +61,14 @@ def evaluate(net, dataloader, criterion):
         y_pred.extend(pred.item() for pred in preds)
         y_gt.extend(y.item() for y in labels)
 
-        break
+#        break
 
     acc1 = 100 * correct_count1 / n_samples
     acc2 = 100 * correct_count2 / n_samples
     loss = loss_tr / n_samples
     print("--------------------------------------------------------")
-    print("Top 1 Accuracy: %2.2f %%" % acc1)
-    print("Top 2 Accuracy: %2.2f %%" % acc2)
+    print("Top 1 Accuracy: %2.6f %%" % acc1)
+    print("Top 2 Accuracy: %2.6f %%" % acc2)
     print("Loss: %2.6f" % loss)
     print("Precision: %2.6f" % precision_score(y_gt, y_pred, average='micro'))
     print("Recall: %2.6f" % recall_score(y_gt, y_pred, average='micro'))
