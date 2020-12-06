@@ -22,12 +22,15 @@ class Subnet1Features(nn.Module):
     def forward(self, x):
         x = F.relu(self.bn1(self.conv1(x)))
         x = self.pool(x)
+        #x = self.drop(x)
 
         x = F.relu(self.bn2(self.conv2(x)))
         x = self.pool(x)
+        #x = self.drop(x)
 
         x = F.relu(self.bn3(self.conv3(x)))
         x = self.pool(x)
+        x = self.drop(x)
 
         x = x.view(-1, 256 * 6 * 6)
 
