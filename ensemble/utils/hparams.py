@@ -1,21 +1,21 @@
 import os
 
 hps = {
-    'network': '',              # ensemble vs subnet
-    'name': '',                 # network name
+    'network': '',  # ensemble vs subnet
+    'name': '',  # network name
     'n_epochs': 300,
-    'model_save_dir': None,     # where will checkpoints be stored (path created automatically using hps[name])
-    'restore_epoch': None,      # continue training from a specific saved point
+    'model_save_dir': None,  # where will checkpoints be stored (path created automatically using hps[name])
+    'restore_epoch': None,  # continue training from a specific saved point
     'start_epoch': 0,
-    'lr': 0.01,                 # starting learning rate
-    'save_freq': 20,            # how often to create checkpoints
+    'lr': 0.01,  # starting learning rate
+    'save_freq': 20,  # how often to create checkpoints
 
     # the following parameters are only applicable if network=ensemble
-    'subnet_type': 'tuned',     # tuned vs. basic
-    'sub1_path': None,          # where to load sub1 features
-    'sub2_path': None,          # where to load sub2 features
-    'sub3_path': None,          # where to load sub3 features
-    'vgg_path': None,           # where to load sub3 features
+    'subnet_type': 'tuned',  # tuned vs. basic
+    'sub1_path': None,  # where to load sub1 features
+    'sub2_path': None,  # where to load sub2 features
+    'sub3_path': None,  # where to load sub3 features
+    'vgg_path': None,  # where to load sub3 features
 }
 
 possible_nets = {

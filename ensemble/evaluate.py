@@ -84,6 +84,8 @@ if __name__ == "__main__":
     logger, net = setup_network(hps)
     net = net.to(device)
 
+    print(net)
+
     criterion = nn.CrossEntropyLoss()
 
     # Get data with no augmentation

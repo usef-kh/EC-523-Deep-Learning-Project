@@ -54,6 +54,7 @@ class VggFeatures(nn.Module):
         x = F.relu(self.bn4a(self.conv4a(x)))
         x = F.relu(self.bn4b(self.conv4b(x)))
         x = self.pool(x)
+        # print(x.shape)
 
         x = x.view(-1, 512 * 3 * 3)
         x = F.relu(self.drop(self.lin1(x)))
@@ -65,9 +66,9 @@ class VggFeatures(nn.Module):
 class Vgg(VggFeatures):
     def __init__(self):
         super().__init__()
-        self.lin = nn.Linear(4096, 7)
+        self.lin3 = nn.Linear(4096, 7)
 
     def forward(self, x):
         x = super().forward(x)
-        x = self.lin(x)
+        x = self.lin3(x)
         return x

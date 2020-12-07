@@ -10,7 +10,7 @@ class Ensemble(nn.Module):
         self.sub3 = subnet3
         self.vgg = vgg
 
-        self.final_lin = nn.Linear(4096 * 3 + 512, 7)
+        self.final_lin = nn.Linear(4096 * 4, 7)
 
     def forward(self, x):
         x_1 = self.sub1(x)

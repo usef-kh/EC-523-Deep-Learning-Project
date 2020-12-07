@@ -74,7 +74,7 @@ def run(net, logger, hps):
 
     learning_rate = float(hps['lr'])
     optimizer = torch.optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9, nesterov=True, weight_decay=0.0001)
-    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=5, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=10, verbose=True)
     criterion = nn.CrossEntropyLoss()
 
     print("Training", hps['name'], "on", device)
