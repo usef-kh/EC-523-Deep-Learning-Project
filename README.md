@@ -2,7 +2,9 @@
 
 ## Installation
 
-To install this project, just clone this repo to your local machine
+To install this project:
+- clone this repo to your local machine
+- create a conda env using <code>requirements.txt</code>
 
 ## Running 
 
