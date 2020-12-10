@@ -37,3 +37,5 @@ To train a network a sample command would be the following
 
 for more training examples and details, checkout <code>scripts/*.sh</code>. These are someof the ones we run to train our networks.
 
+While training, the code will use a number of different files from the <code>utils<code> directory. These are just some supplementary files that are supposed to make it easier for the user to train different variations of a model or load a model from a certain checkpoint.
+
