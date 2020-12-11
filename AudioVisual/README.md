@@ -1,7 +1,7 @@
 # AudioVisual
 
 This section of the project deals with running a multi-network architecture on a dataset of videos.
-
+![alt text](https://github.com/usef-kh/EC523-Deep-Learning-Project/edit/master/AudioVisual/audio_visual_model.png?raw=true)
 ## Models
 
 This repo supports a number of different networks. 
