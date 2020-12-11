@@ -19,6 +19,7 @@ SVM, on the other hand is an sklearn model that is defined in <code>train_svm.py
 The dataset used for this part of the project is [eNTERFACE'05](http://www.enterface.net/enterface05/)
 
 This dataset must be placed in the root directory in a folder called <code>datasets/enterface/original/</code>
+
 To extract the audio files, you must run <code>convert_avi_wav.py</code>
 
 Due to the time it takes to preprocess this dataset, we created a file <code>process_data.py</code> that will perform all key frame selections and compute the requires spectrograms along with all other preprocessing required
