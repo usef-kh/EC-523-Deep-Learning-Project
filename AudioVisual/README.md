@@ -1,6 +1,6 @@
 # AudioVisual
 
-This section of the project deals with running a CNN ensemble on a dataset of images.
+This section of the project deals with running a multi-network architecture on a dataset of videos.
 
 ## Models
 
