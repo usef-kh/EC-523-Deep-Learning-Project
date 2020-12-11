@@ -1,6 +1,7 @@
 # Ensemble
 
 This section of the project deals with running a CNN ensemble on a dataset of images.
+![alt text](https://github.com/usef-kh/EC523-Deep-Learning-Project/blob/master/ensemble/ensemble_model.PNG)
 
 ## Models
 
