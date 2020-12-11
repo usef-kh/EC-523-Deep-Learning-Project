@@ -12,6 +12,7 @@ This repo supports a number of different networks.
 - svm
 
 The actual architectures are all detailed in the <code>models</code> directory
+
 SVM, on the other hand is an sklearn model that is defined in <code>train_svm.py</code> 
 
 ## Data 
