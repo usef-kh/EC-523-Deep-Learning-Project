@@ -25,14 +25,17 @@ Due to the time it takes to preprocess this dataset, we created a file <code>pro
 
 This file will call upon all relevant files within  the <code>data</code> directory to do this. Primarity, <code>enterface.py</code> will load and prep all files, <code>processor.py</code> will perform the preprocessing, and <code>dataset.py</code> will build a pytorch custom dataset.
 
+The processed data must be placed in <code>datasets/enterface/processed</code>
+
 ## Environment
 
 Everything was built and run on a conda env 
 
 ## Training
 
-Unlike Ensemble, depending on the network chosen, the training inputs and targets are different in this section of the project.
+Unlike in the CNN Ensemble, depending on the network chosen, the training inputs and targets are different in this section of the project.
 For this, we have several training files. Depending on the network chosen, one of the following will need to be run.
+It is not possible to train without performing the required data steps above to preprocess the data.
 
 ### CNNs
 - <code>python train_cnn.py network=cnn2d name=my_cnn2d</code>
