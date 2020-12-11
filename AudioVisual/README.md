@@ -33,11 +33,15 @@ Everything was built and run on a conda env
 
 Unlike Ensemble, depending on the network chosen, the training inputs and targets are different in this section of the project.
 For this, we have several training files. Depending on the network chosen, one of the following will need to be run.
-<code>python train_cnn.py network=cnn2d name=my_cnn2d</code>
-<code>python train_cnn.py network=cnn3d name=my_cnn3d</code>
 
-<code>python train_elm.py network=elm1 name=my_elm1 cnn2d_path=PATH_TO_CNN2D_CHECKPOINT cnn3d_path=PATH_TO_CNN3D_CHECKPOINT</code>
-<code>python train_elm.py network=elm2 name=my_elm2 elm1_path=PATH_TO_ELM1_CHECKPOINT</code>
+### CNNs
+- <code>python train_cnn.py network=cnn2d name=my_cnn2d</code>
+- <code>python train_cnn.py network=cnn3d name=my_cnn3d</code>
 
-<code>python train.py network=svm name=my_svm elm2_path=PATH_TO_ELM2_CHECKPOINT</code>
+### ELMs
+- <code>python train_elm.py network=elm1 name=my_elm1 cnn2d_path=PATH_TO_CNN2D_CHECKPOINT cnn3d_path=PATH_TO_CNN3D_CHECKPOINT</code>
+- <code>python train_elm.py network=elm2 name=my_elm2 elm1_path=PATH_TO_ELM1_CHECKPOINT</code>
+
+### SVM
+- <code>python train_svm.py network=svm name=my_svm elm2_path=PATH_TO_ELM2_CHECKPOINT</code>
 
