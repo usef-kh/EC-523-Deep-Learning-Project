@@ -25,7 +25,7 @@ To extract the audio files, you must run <code>convert_avi_wav.py</code>
 
 Due to the time it takes to preprocess this dataset, we created a file <code>process_data.py</code> that will perform all key frame selections and compute the required spectrograms along with all other preprocessing required
 
-This file will call upon all relevant files within  the <code>data</code> directory to do this. Primarity, <code>enterface.py</code> will load and prep all files, <code>processor.py</code> will perform the preprocessing, and <code>dataset.py</code> will build a pytorch custom dataset.
+This file will call upon all relevant files within  the <code>data</code> directory to do this. Primarily, <code>enterface.py</code> will load and prep all files, <code>processor.py</code> will perform the preprocessing, and <code>dataset.py</code> will build a pytorch custom dataset.
 
 The processed data must be placed in <code>datasets/enterface/processed</code>
 
